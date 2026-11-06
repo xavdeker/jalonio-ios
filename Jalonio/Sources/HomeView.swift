@@ -24,7 +24,7 @@ struct HomeView: View {
                             MyTicketRow(ticket: ticket).tag(ticket.key)
                         }
                     } header: {
-                        if let me = model.me { Text(L.tr("home_hello", me.displayName)).textCase(nil).foregroundStyle(Brand.muted) }
+                        if let me = model.me { Text(L.tr("home_hello", me.displayName)).textCase(nil).foregroundStyle(.primary) }
                     }
                 }
                 .refreshable { await reload() }
