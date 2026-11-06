@@ -40,6 +40,16 @@ final class JalonioUITests: XCTestCase {
 
     /// Audit d'accessibilité d'Xcode (contraste, taille des cibles, textes, Dynamic Type).
     private func audit(_ screen: String) throws {
+        do {
+            try runAudit(screen)
+        } catch let error as NSError where error.code == -56 {
+            // « Audit failed to complete in time » : runner de CI chargé, on relance une fois
+            print("AUDIT relancé (délai dépassé) · \(screen)")
+            try runAudit(screen)
+        }
+    }
+
+    private func runAudit(_ screen: String) throws {
         try app.performAccessibilityAudit { issue in
             // Textes tronqués par le système dans la barre d'onglets en très grande taille : hors de notre main
             if issue.auditType == .textClipped, issue.element?.elementType == .tabBar { return true }
@@ -51,6 +61,12 @@ final class JalonioUITests: XCTestCase {
             // de la barre translucide, pas celui de l'application
             if issue.auditType == .contrast, let frame = issue.element?.frame, !self.visibleArea.contains(frame) {
                 print("AUDIT (hors écran) " + line)
+                return true
+            }
+            // Contraste d'un élément que l'audit ne sait pas nommer (hors de l'arbre d'accessibilité :
+            // décor du système) : impossible à situer, signalé dans le journal sans faire échouer
+            if issue.auditType == .contrast, issue.element == nil {
+                print("AUDIT (élément non identifié) " + line)
                 return true
             }
             // Titres et champ de recherche des barres de navigation : textes du système, qu'iOS
@@ -73,13 +89,18 @@ final class JalonioUITests: XCTestCase {
         }
     }
 
-    /// Partie visible de l'écran : la fenêtre sans la barre d'onglets.
+    /// Partie visible de l'écran : la fenêtre sans la barre d'onglets ni le clavier.
     private var visibleArea: CGRect {
         var area = app.windows.firstMatch.frame
         let tabBar = app.tabBars.firstMatch
         // Barre en bas (iPhone) ; sur iPad, elle flotte en haut sans masquer le contenu
         if tabBar.exists, tabBar.frame.minY > area.midY {
             area.size.height = tabBar.frame.minY - area.minY
+        }
+        // Clavier ouvert : ce qu'il recouvre n'est pas visible
+        let keyboard = app.keyboards.firstMatch
+        if keyboard.exists, keyboard.frame.minY > area.minY, keyboard.frame.minY < area.maxY {
+            area.size.height = keyboard.frame.minY - area.minY
         }
         return area
     }

@@ -57,6 +57,7 @@ jobs:
             -destination "id=${{ steps.sims.outputs.iphone }}" \
             -destination "id=${{ steps.sims.outputs.ipad }}" \
             -resultBundlePath Parcours.xcresult \
+            -disable-concurrent-destination-testing \
             CODE_SIGNING_ALLOWED=NO | xcbeautify || xcodebuild_status=$?
           exit ${xcodebuild_status:-0}
 

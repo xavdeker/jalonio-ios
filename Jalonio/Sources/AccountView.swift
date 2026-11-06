@@ -23,13 +23,13 @@ struct AccountView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(me.displayName).font(.headline)
                                 Text(me.email).font(.subheadline).foregroundStyle(Brand.muted)
-                                Text(L.tr("account_workspace", me.organization.name, model.workspace ?? ""))
-                                    .font(.caption)
-                                    .fixedSize(horizontal: false, vertical: true)
-                                    .foregroundStyle(Brand.muted)
                             }
                         }
                         .accessibilityElement(children: .combine)
+                        // Organisation et espace sur leur propre ligne : pleine largeur, jamais tronqués
+                        Text(L.tr("account_workspace", me.organization.name, model.workspace ?? ""))
+                            .font(.subheadline)
+                            .foregroundStyle(Brand.muted)
                     }
                 }
 
