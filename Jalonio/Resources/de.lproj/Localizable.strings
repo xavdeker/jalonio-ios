@@ -32,8 +32,10 @@
 "login_back" = "Anderes Konto verwenden";
 "login_code" = "Bestätigungscode";
 "login_code_hint" = "Der Code ändert sich alle 30 Sekunden.";
+"login_code_missing" = "Geben Sie den 6-stelligen Code ein.";
 "login_create_workspace" = "Noch kein Arbeitsbereich? Erstellen Sie kostenlos einen";
 "login_email" = "E-Mail-Adresse";
+"login_fields_missing" = "Geben Sie die Adresse des Arbeitsbereichs, Ihre E-Mail-Adresse und Ihr Passwort ein.";
 "login_forgot" = "Passwort vergessen?";
 "login_intro" = "Einfaches und souveränes Projektmanagement.";
 "login_password" = "Passwort";

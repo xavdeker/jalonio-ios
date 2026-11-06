@@ -23,6 +23,22 @@ LANGS = {"values": "en", "values-fr": "fr", "values-de": "de", "values-es": "es"
 
 # Textes propres à iOS : clé → {langue: texte}
 EXTRA = {
+    "login_fields_missing": {
+        "fr": "Saisissez l’adresse de l’espace, votre adresse e-mail et votre mot de passe.",
+        "en": "Enter the workspace address, your email address and your password.",
+        "de": "Geben Sie die Adresse des Arbeitsbereichs, Ihre E-Mail-Adresse und Ihr Passwort ein.",
+        "es": "Introduzca la dirección del espacio de trabajo, su correo electrónico y su contraseña.",
+        "it": "Inserisci l’indirizzo dello spazio di lavoro, il tuo indirizzo e-mail e la tua password.",
+        "pt": "Introduza o endereço do espaço de trabalho, o seu endereço de e-mail e a sua palavra-passe.",
+    },
+    "login_code_missing": {
+        "fr": "Saisissez le code à 6 chiffres.",
+        "en": "Enter the 6-digit code.",
+        "de": "Geben Sie den 6-stelligen Code ein.",
+        "es": "Introduzca el código de 6 dígitos.",
+        "it": "Inserisci il codice a 6 cifre.",
+        "pt": "Introduza o código de 6 dígitos.",
+    },
     "loading": {
         "fr": "Chargement…", "en": "Loading…", "de": "Wird geladen …", "es": "Cargando…", "it": "Caricamento…", "pt": "A carregar…",
     },

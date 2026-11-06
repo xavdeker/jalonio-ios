@@ -43,6 +43,8 @@ final class JalonioUITests: XCTestCase {
         try app.performAccessibilityAudit { issue in
             // Textes tronqués par le système dans la barre d'onglets en très grande taille : hors de notre main
             if issue.auditType == .textClipped, issue.element?.elementType == .tabBar { return true }
+            // Champ d'une ligne (UITextField) : iOS fait défiler le texte, il ne le renvoie jamais à la ligne
+            if issue.auditType == .textClipped, issue.element?.elementType == .textField { return true }
             let element = issue.element.map { "\($0.elementType.rawValue) « \($0.label) » [\($0.identifier)]" } ?? "?"
             let line = "\(self.isPad ? "iPad" : "iPhone") · \(screen) : \(issue.compactDescription) — \(element) — \(issue.detailedDescription)"
             self.issues.append(line)
@@ -65,10 +67,13 @@ final class JalonioUITests: XCTestCase {
         try audit("connexion")
         capture("1-connexion")
 
+        // Bouton jamais grisé : un appui sans les champs dit quoi saisir
+        app.buttons["login.submit"].tap()
+        XCTAssertTrue(element(containing: "Saisissez l’adresse de l’espace").waitForExistence(timeout: 2))
+
         workspace.tap()
         workspace.typeText("mon espace")
         XCTAssertTrue(element(containing: "Adresse invalide").waitForExistence(timeout: 2))
-        XCTAssertFalse(app.buttons["login.submit"].isEnabled)
 
         workspace.clearText()
         workspace.typeText("mairie-x")

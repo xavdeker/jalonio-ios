@@ -32,8 +32,10 @@
 "login_back" = "Utiliser un autre compte";
 "login_code" = "Code de vérification";
 "login_code_hint" = "Le code change toutes les 30 secondes.";
+"login_code_missing" = "Saisissez le code à 6 chiffres.";
 "login_create_workspace" = "Pas encore d’espace ? Créez-en un gratuitement";
 "login_email" = "Adresse e-mail";
+"login_fields_missing" = "Saisissez l’adresse de l’espace, votre adresse e-mail et votre mot de passe.";
 "login_forgot" = "Mot de passe oublié ?";
 "login_intro" = "La gestion de projets simple et souveraine.";
 "login_password" = "Mot de passe";

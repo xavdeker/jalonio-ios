@@ -56,12 +56,21 @@ struct LoginView: View {
                 }
 
                 Section {
+                    // Jamais grisé (contraste et lecteurs d'écran) : sans espace, on dit quoi corriger
                     if challenge == nil {
-                        Button(L.tr("login_forgot")) {
-                            if let origin { openURL(ServerAddress.webPage("/mot-de-passe/oubli/", origin: origin)) }
+                        Button {
+                            if let origin {
+                                openURL(ServerAddress.webPage("/mot-de-passe/oubli/", origin: origin))
+                            } else {
+                                error = L.tr("login_workspace_invalid")
+                                focus = .workspace
+                            }
+                        } label: {
+                            Text(L.tr("login_forgot")).font(.body)
                         }
-                        .disabled(origin == nil)
-                        Link(L.tr("login_create_workspace"), destination: URL(string: "https://app.jalonio.fr/inscription/")!)
+                        Link(destination: URL(string: "https://app.jalonio.fr/inscription/")!) {
+                            Text(L.tr("login_create_workspace")).font(.body)
+                        }
                     } else {
                         Button(L.tr("login_back")) {
                             challenge = nil
@@ -115,16 +124,19 @@ struct LoginView: View {
                     Spacer()
                 }
             }
-            .disabled(workspace.isEmpty || email.isEmpty || password.isEmpty)
             .accessibilityIdentifier("login.submit")
         } footer: {
-            if let origin {
-                Text(L.tr("login_workspace_resolved", ServerAddress.displayName(for: origin)))
-            } else if workspace.isEmpty {
-                Text(L.tr("login_workspace_hint", ServerAddress.saasDomain))
-            } else {
-                Text(L.tr("login_workspace_invalid")).foregroundStyle(Brand.danger)
+            // Gris secondaire trop pâle pour ce texte utile : couleur du texte principal
+            Group {
+                if let origin {
+                    Text(L.tr("login_workspace_resolved", ServerAddress.displayName(for: origin)))
+                } else if workspace.isEmpty {
+                    Text(L.tr("login_workspace_hint", ServerAddress.saasDomain))
+                } else {
+                    Text(L.tr("login_workspace_invalid")).foregroundStyle(Brand.danger)
+                }
             }
+            .foregroundStyle(.primary)
         }
     }
 
@@ -147,7 +159,6 @@ struct LoginView: View {
                     Spacer()
                 }
             }
-            .disabled(code.trimmingCharacters(in: .whitespaces).count < 6)
         } header: {
             Text(L.tr("login_two_factor_intro"))
                 .textCase(nil)
@@ -158,6 +169,11 @@ struct LoginView: View {
     }
 
     private func submit() async {
+        guard !workspace.isEmpty, !email.isEmpty, !password.isEmpty else {
+            error = L.tr("login_fields_missing")
+            focus = workspace.isEmpty ? .workspace : email.isEmpty ? .email : .password
+            return
+        }
         guard let origin else {
             error = L.tr("login_workspace_invalid")
             focus = .workspace
@@ -177,6 +193,11 @@ struct LoginView: View {
     }
 
     private func submitCode(_ challenge: String) async {
+        guard code.trimmingCharacters(in: .whitespaces).count >= 6 else {
+            error = L.tr("login_code_missing")
+            focus = .code
+            return
+        }
         busy = true
         defer { busy = false }
         do {
