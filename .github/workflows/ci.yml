@@ -60,7 +60,44 @@ jobs:
             CODE_SIGNING_ALLOWED=NO | xcbeautify || xcodebuild_status=$?
           exit ${xcodebuild_status:-0}
 
+      - name: Détail des échecs
+        if: failure() && hashFiles('Parcours.xcresult/Info.plist') != ''
+        run: |
+          xcrun xcresulttool get test-results tests --path Parcours.xcresult > tests.json
+          python3 - <<'EOF'
+          import json, subprocess
+          def walk(node, path=""):
+              if node.get("nodeType") == "Test Case" and node.get("result") == "Failed":
+                  yield node
+              for child in node.get("children", []):
+                  yield from walk(child)
+          def lines(node, depth=0):
+              title = node.get("title") or node.get("name") or ""
+              if node.get("isAssociatedWithFailure") or " : " in title or "Failed" in title:
+                  print("  " * depth + "- " + title)
+              for child in node.get("childActivities", []):
+                  lines(child, depth + 1)
+          data = json.load(open("tests.json"))
+          for root in data.get("testNodes", []):
+              for case in walk(root):
+                  print(f"::group::{case['name']}")
+                  for child in case.get("children", []):
+                      print(f"{child.get('nodeType')}: {child.get('name')}")
+                  out = subprocess.run(["xcrun", "xcresulttool", "get", "test-results", "activities",
+                      "--test-id", case["nodeIdentifier"], "--path", "Parcours.xcresult"],
+                      capture_output=True, text=True).stdout
+                  try:
+                      for run in json.loads(out).get("testRuns", []):
+                          print(f"* {run.get('device', {}).get('deviceName', '')}")
+                          for activity in run.get("activities", []):
+                              lines(activity, 1)
+                  except json.JSONDecodeError:
+                      print(out[:4000])
+                  print("::endgroup::")
+          EOF
+
       - name: Version publiable (Release, sans signature)
+        if: success() || failure()
         run: |
           set -o pipefail
           xcodebuild build -project Jalonio.xcodeproj -scheme Jalonio -configuration Release \

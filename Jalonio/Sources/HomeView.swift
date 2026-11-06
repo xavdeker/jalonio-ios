@@ -49,11 +49,8 @@ struct MyTicketRow: View {
             Text(ticket.title)
                 .font(.body.weight(.medium))
                 .strikethrough(ticket.resolved)
-            HStack(spacing: 8) {
-                Text(ticket.key).font(.caption.monospaced())
-                Text(ticket.statusName)
-                Text(ticket.project.name).lineLimit(1)
-            }
+            // Un seul texte : il revient à la ligne au lieu d'être tronqué (grandes tailles de texte)
+            Text("\(Text(ticket.key).monospaced()) · \(ticket.statusName) · \(ticket.project.name)")
             .font(.caption)
             .foregroundStyle(.secondary)
             HStack(spacing: 12) {

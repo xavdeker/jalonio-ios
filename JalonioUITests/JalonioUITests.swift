@@ -27,13 +27,27 @@ final class JalonioUITests: XCTestCase {
         add(attachment)
     }
 
+    /// Défauts d'accessibilité relevés pendant le parcours, signalés ensemble à la fin
+    /// (un seul passage de CI suffit à les voir tous).
+    private var issues: [String] = []
+
+    override func tearDown() {
+        if !issues.isEmpty {
+            XCTFail("Audit d'accessibilité (\(issues.count)) :\n" + issues.joined(separator: "\n"))
+        }
+        super.tearDown()
+    }
+
     /// Audit d'accessibilité d'Xcode (contraste, taille des cibles, textes, Dynamic Type).
     private func audit(_ screen: String) throws {
         try app.performAccessibilityAudit { issue in
             // Textes tronqués par le système dans la barre d'onglets en très grande taille : hors de notre main
             if issue.auditType == .textClipped, issue.element?.elementType == .tabBar { return true }
-            XCTContext.runActivity(named: "\(screen) : \(issue.compactDescription)") { _ in }
-            return false
+            let element = issue.element.map { "\($0.elementType.rawValue) « \($0.label) » [\($0.identifier)]" } ?? "?"
+            let line = "\(isPad ? "iPad" : "iPhone") · \(screen) : \(issue.compactDescription) — \(element) — \(issue.detailedDescription)"
+            issues.append(line)
+            print("AUDIT " + line)
+            return true
         }
     }
 

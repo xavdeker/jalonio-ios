@@ -196,7 +196,7 @@ struct CreateTicketView: View {
         NavigationStack {
             Form {
                 if let error {
-                    Label(error, systemImage: "exclamationmark.circle").foregroundStyle(.red)
+                    Label(error, systemImage: "exclamationmark.circle").foregroundStyle(Brand.danger)
                 }
                 TextField(L.tr("ticket_title"), text: $title, axis: .vertical)
                     .focused($focused)

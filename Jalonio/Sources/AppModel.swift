@@ -32,7 +32,7 @@ final class AppModel {
         self.tokens = tokens
         // Le rappel vient de l'acteur du client : retour sur le fil principal.
         let relay = SignOutRelay()
-        api = APIClient(server: server, tokens: tokens, transport: transport, languages: AppModel.acceptLanguage, onSignedOut: { relay.fire() })
+        api = APIClient(server: server, tokens: tokens, transport: transport, languages: { AppModel.acceptLanguage() }, onSignedOut: { relay.fire() })
         relay.model = self
     }
 

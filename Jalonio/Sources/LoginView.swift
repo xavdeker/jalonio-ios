@@ -45,7 +45,7 @@ struct LoginView: View {
                 if let message = error ?? notice {
                     Section {
                         Label(message, systemImage: "exclamationmark.circle")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Brand.danger)
                     }
                 }
 
@@ -123,7 +123,7 @@ struct LoginView: View {
             } else if workspace.isEmpty {
                 Text(L.tr("login_workspace_hint", ServerAddress.saasDomain))
             } else {
-                Text(L.tr("login_workspace_invalid")).foregroundStyle(.red)
+                Text(L.tr("login_workspace_invalid")).foregroundStyle(Brand.danger)
             }
         }
     }

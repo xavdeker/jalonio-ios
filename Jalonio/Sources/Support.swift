@@ -53,6 +53,10 @@ enum Brand {
     static let green = Color("AccentColor")
     static let mint = Color(hex: "#5ff2c8")
     static let pink = Color(hex: "#ff4f8b")
+    /// Rouge et orange lisibles en petit texte (contraste ≥ 4,5:1 en clair et en sombre) ;
+    /// ceux du système sont trop pâles sur fond blanc.
+    static let danger = Color("Danger")
+    static let warning = Color("Warning")
 }
 
 extension Color {
@@ -153,8 +157,8 @@ struct PriorityLabel: View {
 
     private var style: (symbol: String, color: Color) {
         switch priority {
-        case "critical": return ("exclamationmark.2", .red)
-        case "high": return ("arrow.up", .orange)
+        case "critical": return ("exclamationmark.2", Brand.danger)
+        case "high": return ("arrow.up", Brand.warning)
         case "low": return ("arrow.down", .secondary)
         default: return ("equal", .secondary)
         }
@@ -170,7 +174,7 @@ struct DueLabel: View {
         if let text = L.day(dueDate) {
             let overdue = !resolved && JalonioDates.isOverdue(dueDate)
             Label(overdue ? "\(text) · \(L.tr("ticket_overdue"))" : text, systemImage: "calendar")
-                .foregroundStyle(overdue ? Color.red : Color.secondary)
+                .foregroundStyle(overdue ? Brand.danger : Color.secondary)
         }
     }
 }

@@ -47,7 +47,7 @@ struct TicketView: View {
                 }
                 .padding(.vertical, 4)
                 if let actionError {
-                    Label(actionError, systemImage: "exclamationmark.circle").foregroundStyle(.red)
+                    Label(actionError, systemImage: "exclamationmark.circle").foregroundStyle(Brand.danger)
                 }
             }
 
