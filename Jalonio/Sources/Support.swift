@@ -155,9 +155,13 @@ struct Avatar: View {
 struct PriorityLabel: View {
     let priority: String
 
+    // Icône et texte côte à côte (un Label laisse une colonne d'icône vide dans les listes)
     var body: some View {
-        Label(L.priority(priority), systemImage: style.symbol)
-            .foregroundStyle(style.color)
+        HStack(spacing: 4) {
+            Image(systemName: style.symbol).accessibilityHidden(true)
+            Text(L.priority(priority))
+        }
+        .foregroundStyle(style.color)
     }
 
     private var style: (symbol: String, color: Color) {
@@ -178,8 +182,11 @@ struct DueLabel: View {
     var body: some View {
         if let text = L.day(dueDate) {
             let overdue = !resolved && JalonioDates.isOverdue(dueDate)
-            Label(overdue ? "\(text) · \(L.tr("ticket_overdue"))" : text, systemImage: "calendar")
-                .foregroundStyle(overdue ? Brand.danger : Brand.muted)
+            HStack(spacing: 4) {
+                Image(systemName: "calendar").accessibilityHidden(true)
+                Text(overdue ? "\(text) · \(L.tr("ticket_overdue"))" : text)
+            }
+            .foregroundStyle(overdue ? Brand.danger : Brand.muted)
         }
     }
 }

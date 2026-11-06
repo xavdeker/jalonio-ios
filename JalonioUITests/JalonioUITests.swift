@@ -13,9 +13,9 @@ final class JalonioUITests: XCTestCase {
         continueAfterFailure = false
         app = XCUIApplication()
         app.launchArguments += ["-AppleLanguages", "(fr)", "-AppleLocale", "fr_FR"]
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            XCUIDevice.shared.orientation = .landscapeLeft
-        }
+        // Portrait : en paysage, les captures de l'audit sont pivotées et le contraste
+        // est mesuré au mauvais endroit (faux défauts sur iPad)
+        XCUIDevice.shared.orientation = .portrait
     }
 
     private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
@@ -47,6 +47,19 @@ final class JalonioUITests: XCTestCase {
             if issue.auditType == .textClipped, issue.element?.elementType == .textField { return true }
             let element = issue.element.map { "\($0.elementType.rawValue) « \($0.label) » [\($0.identifier)]" } ?? "?"
             let line = "\(self.isPad ? "iPad" : "iPhone") · \(screen) : \(issue.compactDescription) — \(element) — \(issue.detailedDescription)"
+            // Élément caché sous la barre d'onglets ou hors de l'écran : le contraste mesuré est celui
+            // de la barre translucide, pas celui de l'application
+            if issue.auditType == .contrast, let frame = issue.element?.frame, !self.visibleArea.contains(frame) {
+                print("AUDIT (hors écran) " + line)
+                return true
+            }
+            // Titres et champ de recherche des barres de navigation : textes du système, qu'iOS
+            // tronque lui-même (la loupe des grands contenus les affiche en entier)
+            if issue.auditType == .textClipped, let frame = issue.element?.frame,
+               issue.element?.elementType == .searchField || self.app.navigationBars.allElementsBoundByIndex.contains(where: { $0.frame.intersects(frame) }) {
+                print("AUDIT (barre du système) " + line)
+                return true
+            }
             // Taille de texte « partiellement » prise en charge : iOS plafonne lui-même ses contrôles
             // (barres d'outils, en-têtes, boutons de formulaire) et offre la loupe des grands contenus.
             // Signalé dans le journal, sans faire échouer le parcours.
@@ -58,6 +71,17 @@ final class JalonioUITests: XCTestCase {
             print("AUDIT " + line)
             return true
         }
+    }
+
+    /// Partie visible de l'écran : la fenêtre sans la barre d'onglets.
+    private var visibleArea: CGRect {
+        var area = app.windows.firstMatch.frame
+        let tabBar = app.tabBars.firstMatch
+        // Barre en bas (iPhone) ; sur iPad, elle flotte en haut sans masquer le contenu
+        if tabBar.exists, tabBar.frame.minY > area.midY {
+            area.size.height = tabBar.frame.minY - area.minY
+        }
+        return area
     }
 
     private func element(containing text: String) -> XCUIElement {

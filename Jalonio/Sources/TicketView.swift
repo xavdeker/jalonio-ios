@@ -62,7 +62,7 @@ struct TicketView: View {
                     LabeledContent(L.tr("ticket_due")) { DueLabel(dueDate: ticket.dueDate, resolved: ticket.resolved) }
                 }
                 if let reporter = ticket.reporter {
-                    LabeledContent(L.tr("ticket_reporter"), value: reporter.displayName)
+                    LabeledContent(L.tr("ticket_reporter")) { Text(reporter.displayName).foregroundStyle(Brand.muted) }
                 }
             }
 
@@ -119,7 +119,7 @@ struct TicketView: View {
             .pickerStyle(.menu)
             .accessibilityIdentifier("ticket.status")
         } else {
-            LabeledContent(L.tr("ticket_status"), value: current?.name ?? "—")
+            LabeledContent(L.tr("ticket_status")) { Text(current?.name ?? "—").foregroundStyle(Brand.muted) }
         }
     }
 
