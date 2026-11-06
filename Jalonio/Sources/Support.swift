@@ -1,0 +1,173 @@
+// SPDX-License-Identifier: EUPL-1.2
+
+import JalonioKit
+import SwiftUI
+
+/// Textes de l'application (Resources/<langue>.lproj, produits par scripts/strings.py).
+enum L {
+    static func tr(_ key: String, _ args: CVarArg...) -> String {
+        let format = NSLocalizedString(key, comment: "")
+        return args.isEmpty ? format : String(format: format, locale: Locale.current, arguments: args)
+    }
+
+    /// Pluriel (Localizable.stringsdict).
+    static func plural(_ key: String, _ count: Int) -> String {
+        String.localizedStringWithFormat(NSLocalizedString(key, comment: ""), count)
+    }
+
+    /// Message d'un échec : celui du serveur (déjà traduit) s'il existe.
+    static func message(for error: Error) -> String {
+        switch error as? APIFailure {
+        case .server(_, _, let message?) where !message.isEmpty: return message
+        case .server: return tr("error_server")
+        case .network: return tr("error_network")
+        case .signedOut: return tr("error_session_expired")
+        case .unexpected, .none: return tr("error_unexpected")
+        }
+    }
+
+    static func priority(_ value: String) -> String {
+        switch value {
+        case "critical": return tr("priority_critical")
+        case "high": return tr("priority_high")
+        case "low": return tr("priority_low")
+        default: return tr("priority_normal")
+        }
+    }
+
+    static func day(_ value: String?) -> String? {
+        JalonioDates.day(value).map { $0.formatted(date: .abbreviated, time: .omitted) }
+    }
+
+    static func instant(_ value: String?) -> String? {
+        JalonioDates.instant(value).map { $0.formatted(date: .abbreviated, time: .shortened) }
+    }
+
+    static func relative(_ value: String?) -> String? {
+        JalonioDates.instant(value).map { $0.formatted(.relative(presentation: .named)) }
+    }
+}
+
+/// Couleurs de la charte (frontend/app/globals.css du dépôt `jalonio`).
+enum Brand {
+    static let green = Color("AccentColor")
+    static let mint = Color(hex: "#5ff2c8")
+    static let pink = Color(hex: "#ff4f8b")
+}
+
+extension Color {
+    /// « #00735c » → couleur ; gris si la valeur est illisible.
+    init(hex: String) {
+        let digits = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#")).prefix(6)
+        let value = UInt32(digits, radix: 16) ?? 0x7a8496
+        self.init(
+            red: Double((value >> 16) & 0xff) / 255,
+            green: Double((value >> 8) & 0xff) / 255,
+            blue: Double(value & 0xff) / 255
+        )
+    }
+}
+
+/// Chargement d'une valeur : attente, erreur avec « Réessayer », ou contenu.
+struct Loadable<Value, Content: View>: View {
+    let load: () async throws -> Value
+    var id: AnyHashable = 0
+    @ViewBuilder let content: (Value, _ reload: @escaping () async -> Void) -> Content
+
+    @State private var value: Value?
+    @State private var error: String?
+
+    var body: some View {
+        Group {
+            if let value {
+                content(value, reload)
+            } else if let error {
+                ErrorState(message: error) { Task { await reload() } }
+            } else {
+                ProgressView(L.tr("loading"))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .task(id: id) { await reload() }
+    }
+
+    private func reload() async {
+        do {
+            value = try await load()
+            error = nil
+        } catch is CancellationError {
+            // Vue quittée ou rechargée : rien à afficher
+        } catch {
+            if value == nil { self.error = L.message(for: error) }
+        }
+    }
+}
+
+struct ErrorState: View {
+    let message: String
+    let retry: () -> Void
+
+    var body: some View {
+        ContentUnavailableView {
+            Label(L.tr("error_server"), systemImage: "exclamationmark.triangle")
+        } description: {
+            Text(message)
+        } actions: {
+            Button(L.tr("retry"), action: retry).buttonStyle(.borderedProminent)
+        }
+    }
+}
+
+struct EmptyState: View {
+    let title: String
+    let text: String
+    let systemImage: String
+
+    var body: some View {
+        ContentUnavailableView(title, systemImage: systemImage, description: Text(text))
+    }
+}
+
+/// Initiales d'une personne dans une pastille (avatar du web).
+struct Avatar: View {
+    let initials: String
+    var size: CGFloat = 28
+
+    var body: some View {
+        Text(initials)
+            .font(.system(size: size * 0.4, weight: .bold))
+            .foregroundStyle(Color(hex: "#00382d"))
+            .frame(width: size, height: size)
+            .background(Brand.mint.opacity(0.55), in: Circle())
+            .accessibilityHidden(true)
+    }
+}
+
+struct PriorityLabel: View {
+    let priority: String
+
+    var body: some View {
+        let (symbol, color): (String, Color) = switch priority {
+        case "critical": ("exclamationmark.2", .red)
+        case "high": ("arrow.up", .orange)
+        case "low": ("arrow.down", .secondary)
+        default: ("equal", .secondary)
+        }
+        Label(L.priority(priority), systemImage: symbol)
+            .foregroundStyle(color)
+    }
+}
+
+/// Échéance, en rouge si elle est dépassée (et le ticket ouvert).
+struct DueLabel: View {
+    let dueDate: String?
+    var resolved = false
+
+    var body: some View {
+        if let text = L.day(dueDate) {
+            let overdue = !resolved && JalonioDates.isOverdue(dueDate)
+            Label(overdue ? "\(text) · \(L.tr("ticket_overdue"))" : text, systemImage: "calendar")
+                .foregroundStyle(overdue ? Color.red : Color.secondary)
+        }
+    }
+}

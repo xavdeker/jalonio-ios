@@ -1,0 +1,16 @@
+# Xcode (le projet est généré par XcodeGen depuis project.yml)
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+DerivedData/
+build/
+.build/
+.swiftpm/
+*.xcresult
+# Signature et publication : jamais dans le dépôt
+*.p8
+*.p12
+*.mobileprovision
+fastlane/report.xml
+.DS_Store
+*:Zone.Identifier

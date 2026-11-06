@@ -1,0 +1,80 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Intégration continue de l'application iOS : un seul job macOS (les minutes macOS
+# comptent pour dix dans le quota d'un dépôt privé).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios:
+    name: Cœur, iPhone, iPad, version publiable
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version de Xcode
+        run: xcodebuild -version
+
+      - name: Tests du cœur (JalonioKit)
+        working-directory: JalonioKit
+        run: swift test
+
+      - name: Projet Xcode (XcodeGen)
+        run: |
+          brew install xcodegen xcbeautify
+          xcodegen generate
+
+      - name: Simulateurs
+        id: sims
+        run: |
+          xcrun simctl list devices available -j > devices.json
+          python3 - <<'EOF' >> "$GITHUB_OUTPUT"
+          import json
+          runtimes = json.load(open("devices.json"))["devices"]
+          ios = sorted((k for k in runtimes if "iOS" in k), key=lambda k: [int(x) for x in k.split("iOS-")[-1].split("-")])
+          devices = runtimes[ios[-1]]
+          phone = next(d for d in devices if d["name"].startswith("iPhone"))
+          pad = next(d for d in devices if d["name"].startswith("iPad"))
+          print(f"iphone={phone['udid']}")
+          print(f"ipad={pad['udid']}")
+          print(f"names={phone['name']} / {pad['name']}")
+          EOF
+
+      - name: Parcours de l'application (${{ steps.sims.outputs.names }})
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project Jalonio.xcodeproj -scheme Jalonio \
+            -destination "id=${{ steps.sims.outputs.iphone }}" \
+            -destination "id=${{ steps.sims.outputs.ipad }}" \
+            -resultBundlePath Parcours.xcresult \
+            CODE_SIGNING_ALLOWED=NO | xcbeautify || xcodebuild_status=$?
+          exit ${xcodebuild_status:-0}
+
+      - name: Version publiable (Release, sans signature)
+        run: |
+          set -o pipefail
+          xcodebuild build -project Jalonio.xcodeproj -scheme Jalonio -configuration Release \
+            -destination "generic/platform=iOS" -derivedDataPath build CODE_SIGNING_ALLOWED=NO | xcbeautify
+          # Le faux serveur des tests ne doit pas partir dans la version publiée
+          app=build/Build/Products/Release-iphoneos/Jalonio.app
+          test -d "$app"
+          if ls "$app" | grep -q "^demo-"; then echo "Jeux d'essai présents dans la version publiée"; exit 1; fi
+          echo "Taille de l'application : $(du -sh "$app" | cut -f1)"
+
+      - name: Captures et résultats
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parcours-xcresult
+          path: Parcours.xcresult
+          retention-days: 14
