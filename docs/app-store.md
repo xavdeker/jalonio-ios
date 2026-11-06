@@ -1,7 +1,9 @@
 # Publication sur l'App Store
 
-État au 2026-11-06 : **rien n'est créé chez Apple**. Ces étapes demandent un compte et
-des décisions de l'utilisateur (point I1 de `docs/points-a-trancher.md` du dépôt `jalonio`).
+État au 2026-11-06 : compte Apple Developer créé (équipe `2F44NZ85VT`), identifiant
+`fr.jalonio.app`, fiche App Store Connect (SKU `jalonio-ios`) et clé d'API créés. Reste :
+premier envoi vers TestFlight, essai sur un appareil réel, fiche, compte de démonstration
+(point I5 de `docs/points-a-trancher.md` du dépôt `jalonio`).
 
 ## 1. Compte et identifiant
 
@@ -15,13 +17,20 @@ des décisions de l'utilisateur (point I1 de `docs/points-a-trancher.md` du dép
 
 ## 2. Signature et envoi
 
-Une clé d'API App Store Connect (fichier `.p8`, rôle « App Manager ») permet d'envoyer
-une version sans ouvrir Xcode. Comme pour Android, elle reste **hors du dépôt**
-(`~/jalonio-keystore/`) et doit être sauvegardée ailleurs.
+Une clé d'API App Store Connect (« Jalonio CI », rôle « App Manager », Key ID
+`Y7M35VBT29`) permet d'envoyer une version sans Mac. Comme pour Android, le fichier
+`AuthKey_Y7M35VBT29.p8` reste **hors du dépôt** (`~/jalonio-keystore/`) et doit être
+sauvegardé ailleurs. Sur GitHub, il est le secret chiffré `APP_STORE_CONNECT_KEY` :
 
-L'envoi demande un Mac, ou la CI macOS de GitHub avec la clé en secret chiffré
-(`APP_STORE_CONNECT_KEY`). Script à écrire une fois le compte créé (`deploy-ios.sh`) :
-archive Release, export signé, envoi vers TestFlight, puis promotion en production.
+```bash
+gh secret set APP_STORE_CONNECT_KEY --repo xavdeker/jalonio-ios < ~/jalonio-keystore/AuthKey_Y7M35VBT29.p8
+```
+
+`./deploy-ios.sh` lance le workflow « TestFlight » (`.github/workflows/testflight.yml`) :
+archive Release signée automatiquement (certificat et profil gérés par Apple), envoi vers
+App Store Connect. Le numéro de build est celui de l'exécution du workflow ; la version
+affichée (`MARKETING_VERSION`) se change dans `project.yml`. La mise en production se fait
+dans App Store Connect, après essai sur TestFlight.
 
 ## 3. Fiche
 

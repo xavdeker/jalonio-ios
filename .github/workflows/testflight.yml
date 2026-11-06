@@ -1,0 +1,91 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Envoi d'une version vers TestFlight (App Store Connect), lancé à la main seulement :
+# `./deploy-ios.sh` ou l'onglet Actions de GitHub. La signature est automatique
+# (certificat et profil gérés par Apple), avec la clé d'API App Store Connect.
+# La mise en production se fait ensuite dans App Store Connect, après essai sur TestFlight.
+name: TestFlight
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+env:
+  # Identifiants publics de la clé d'API ; la clé elle-même est le secret APP_STORE_CONNECT_KEY
+  ASC_KEY_ID: Y7M35VBT29
+  ASC_ISSUER_ID: 906be997-abb7-40aa-bf74-48ef0a70a28c
+  TEAM_ID: 2F44NZ85VT
+
+jobs:
+  testflight:
+    name: Archive signée et envoi vers TestFlight
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version de Xcode
+        run: xcodebuild -version
+
+      - name: Tests du cœur (JalonioKit)
+        working-directory: JalonioKit
+        run: swift test
+
+      - name: Projet Xcode (XcodeGen)
+        run: |
+          brew install xcodegen xcbeautify
+          xcodegen generate
+
+      - name: Clé d'API App Store Connect
+        env:
+          KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+        run: |
+          test -n "$KEY" || { echo "Secret APP_STORE_CONNECT_KEY absent du dépôt"; exit 1; }
+          printf '%s\n' "$KEY" > "$RUNNER_TEMP/AuthKey.p8"
+          chmod 600 "$RUNNER_TEMP/AuthKey.p8"
+
+      - name: Archive (Release)
+        run: |
+          set -o pipefail
+          # Numéro de build : croissant à chaque envoi (exigence d'App Store Connect)
+          xcodebuild archive \
+            -project Jalonio.xcodeproj -scheme Jalonio -configuration Release \
+            -destination "generic/platform=iOS" -archivePath build/Jalonio.xcarchive \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            CURRENT_PROJECT_VERSION="${{ github.run_number }}.${{ github.run_attempt }}" | xcbeautify
+          # Le faux serveur des tests ne doit pas partir dans la version publiée
+          app=build/Jalonio.xcarchive/Products/Applications/Jalonio.app
+          if ls "$app" | grep -q "^demo-"; then echo "Jeux d'essai présents dans la version publiée"; exit 1; fi
+
+      - name: Export signé et envoi
+        run: |
+          set -o pipefail
+          cat > build/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$TEAM_ID</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath build/Jalonio.xcarchive -exportOptionsPlist build/ExportOptions.plist \
+            -exportPath build/export \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" | xcbeautify
+          echo "Envoyé : version $(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' build/Jalonio.xcarchive/Products/Applications/Jalonio.app/Info.plist), build ${{ github.run_number }}.${{ github.run_attempt }}"
+
+      - name: Effacer la clé
+        if: always()
+        run: rm -f "$RUNNER_TEMP/AuthKey.p8"
