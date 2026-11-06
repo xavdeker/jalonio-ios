@@ -44,8 +44,8 @@ final class JalonioUITests: XCTestCase {
             // Textes tronqués par le système dans la barre d'onglets en très grande taille : hors de notre main
             if issue.auditType == .textClipped, issue.element?.elementType == .tabBar { return true }
             let element = issue.element.map { "\($0.elementType.rawValue) « \($0.label) » [\($0.identifier)]" } ?? "?"
-            let line = "\(isPad ? "iPad" : "iPhone") · \(screen) : \(issue.compactDescription) — \(element) — \(issue.detailedDescription)"
-            issues.append(line)
+            let line = "\(self.isPad ? "iPad" : "iPhone") · \(screen) : \(issue.compactDescription) — \(element) — \(issue.detailedDescription)"
+            self.issues.append(line)
             print("AUDIT " + line)
             return true
         }
