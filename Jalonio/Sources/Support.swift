@@ -57,6 +57,8 @@ enum Brand {
     /// ceux du système sont trop pâles sur fond blanc.
     static let danger = Color("Danger")
     static let warning = Color("Warning")
+    /// Texte atténué (≥ 4,5:1) : le gris secondaire d'iOS ne fait que 3,4:1 sur fond blanc.
+    static let muted = Color("Muted")
 }
 
 extension Color {
@@ -136,9 +138,12 @@ struct EmptyState: View {
 struct Avatar: View {
     let initials: String
     var size: CGFloat = 28
+    /// Suit la taille de texte choisie dans les réglages (Dynamic Type)
+    @ScaledMetric private var scale: CGFloat = 1
 
     var body: some View {
-        Text(initials)
+        let size = self.size * scale
+        return Text(initials)
             .font(.system(size: size * 0.4, weight: .bold))
             .foregroundStyle(Color(hex: "#00382d"))
             .frame(width: size, height: size)
@@ -159,8 +164,8 @@ struct PriorityLabel: View {
         switch priority {
         case "critical": return ("exclamationmark.2", Brand.danger)
         case "high": return ("arrow.up", Brand.warning)
-        case "low": return ("arrow.down", .secondary)
-        default: return ("equal", .secondary)
+        case "low": return ("arrow.down", Brand.muted)
+        default: return ("equal", Brand.muted)
         }
     }
 }
@@ -174,7 +179,27 @@ struct DueLabel: View {
         if let text = L.day(dueDate) {
             let overdue = !resolved && JalonioDates.isOverdue(dueDate)
             Label(overdue ? "\(text) · \(L.tr("ticket_overdue"))" : text, systemImage: "calendar")
-                .foregroundStyle(overdue ? Brand.danger : Color.secondary)
+                .foregroundStyle(overdue ? Brand.danger : Brand.muted)
         }
+    }
+}
+
+/// Type de ticket : pastille de sa couleur et nom en couleur atténuée (la couleur choisie
+/// pour le type peut être trop claire pour du texte).
+struct TypeLabel: View {
+    let type: TicketTypeInfo
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Circle().fill(Color(hex: type.color)).frame(width: 8, height: 8).accessibilityHidden(true)
+            Text(type.name).foregroundStyle(Brand.muted)
+        }
+    }
+}
+
+/// En-tête de section en couleur atténuée conforme (celle du système est trop pâle).
+extension Section where Parent == Text, Footer == EmptyView, Content: View {
+    init(muted title: String, @ViewBuilder content: () -> Content) {
+        self.init(content: content, header: { Text(title).foregroundStyle(Brand.muted) })
     }
 }

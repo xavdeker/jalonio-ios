@@ -22,7 +22,7 @@ struct HomeView: View {
                             MyTicketRow(ticket: ticket).tag(ticket.key)
                         }
                     } header: {
-                        if let me = model.me { Text(L.tr("home_hello", me.displayName)).textCase(nil) }
+                        if let me = model.me { Text(L.tr("home_hello", me.displayName)).textCase(nil).foregroundStyle(Brand.muted) }
                     }
                 }
                 .refreshable { await reload() }
@@ -52,7 +52,7 @@ struct MyTicketRow: View {
             // Un seul texte : il revient à la ligne au lieu d'être tronqué (grandes tailles de texte)
             Text("\(Text(ticket.key).monospaced()) · \(ticket.statusName) · \(ticket.project.name)")
             .font(.caption)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Brand.muted)
             HStack(spacing: 12) {
                 PriorityLabel(priority: ticket.priority)
                 DueLabel(dueDate: ticket.dueDate, resolved: ticket.resolved)

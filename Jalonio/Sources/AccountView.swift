@@ -22,10 +22,10 @@ struct AccountView: View {
                             Avatar(initials: me.initials, size: 44)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(me.displayName).font(.headline)
-                                Text(me.email).font(.subheadline).foregroundStyle(.secondary)
+                                Text(me.email).font(.subheadline).foregroundStyle(Brand.muted)
                                 Text(L.tr("account_workspace", me.organization.name, model.workspace ?? ""))
                                     .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(Brand.muted)
                             }
                         }
                         .accessibilityElement(children: .combine)
@@ -37,30 +37,33 @@ struct AccountView: View {
                         if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
                     }
                 } header: {
-                    Text(L.tr("account_language"))
+                    Text(L.tr("account_language")).foregroundStyle(Brand.muted)
                 } footer: {
-                    Text(L.tr("account_language_hint"))
+                    Text(L.tr("account_language_hint")).foregroundStyle(Brand.muted)
                 }
 
                 Section {
                     Link(L.tr("account_open_web"), destination: ServerAddress.webPage("/profil/", origin: webOrigin))
                 } footer: {
-                    Text(L.tr("account_profile_hint"))
+                    Text(L.tr("account_profile_hint")).foregroundStyle(Brand.muted)
                 }
 
-                Section(L.tr("account_about")) {
+                Section(muted: L.tr("account_about")) {
                     Link(L.tr("account_help"), destination: URL(string: "https://jalonio.fr/aide/")!)
                     Link(L.tr("account_privacy"), destination: URL(string: "https://app.jalonio.fr/confidentialite/")!)
                     Link(L.tr("account_terms"), destination: URL(string: "https://app.jalonio.fr/cgu/")!)
                     Link(L.tr("account_legal"), destination: URL(string: "https://app.jalonio.fr/mentions-legales/")!)
                     // Exigence de l'App Store : la suppression du compte doit être trouvable depuis l'application
                     Link(L.tr("account_delete"), destination: URL(string: french ? "https://jalonio.fr/suppression-de-compte/" : "https://jalonio.fr/en/account-deletion/")!)
-                    LabeledContent(L.tr("account_version", Self.version), value: "")
+                    Text(L.tr("account_version", Self.version)).foregroundStyle(Brand.muted)
                 }
 
                 Section {
-                    Button(L.tr("account_logout"), role: .destructive) { confirmLogout = true }
-                        .accessibilityIdentifier("account.logout")
+                    // Rouge conforme (celui du système est trop pâle pour du texte)
+                    Button(role: .destructive) { confirmLogout = true } label: {
+                        Text(L.tr("account_logout")).foregroundStyle(Brand.danger)
+                    }
+                    .accessibilityIdentifier("account.logout")
                 }
             }
             .navigationTitle(L.tr("account_title"))

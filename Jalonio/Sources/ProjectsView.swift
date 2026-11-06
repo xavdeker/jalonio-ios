@@ -8,9 +8,11 @@ struct ProjectsView: View {
     @Environment(AppModel.self) private var model
     @State private var project: String?
     @State private var ticket: String?
+    /// Sur iPad, les trois colonnes restent visibles (par défaut, iOS masque celle des projets)
+    @State private var columns = NavigationSplitViewVisibility.all
 
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $columns) {
             Loadable(load: { try await model.api.projects() }, id: model.revision) { projects, reload in
                 // Favoris d'abord, puis par nom
                 let visible = projects.filter { !$0.archived }.sorted { a, b in
@@ -62,13 +64,13 @@ struct ProjectRow: View {
                     Text(project.name).font(.body.weight(.medium))
                     if project.favorite {
                         Image(systemName: "star.fill")
-                            .foregroundStyle(.yellow)
+                            .foregroundStyle(Brand.warning)
                             .accessibilityLabel(L.tr("project_favorite"))
                     }
                 }
                 Text("\(project.key) · \(L.plural("projects_open_tickets", project.openTickets))")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Brand.muted)
             }
         }
         .accessibilityElement(children: .combine)
@@ -158,7 +160,7 @@ struct TicketCardRow: View {
             HStack(spacing: 8) {
                 Text(ticket.key).font(.caption.monospaced())
                 if let type {
-                    Text(type.name).foregroundStyle(Color(hex: type.color))
+                    TypeLabel(type: type)
                 }
                 Spacer(minLength: 0)
                 if let assignee = ticket.assignee {
@@ -167,7 +169,7 @@ struct TicketCardRow: View {
                 }
             }
             .font(.caption)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Brand.muted)
             HStack(spacing: 12) {
                 PriorityLabel(priority: ticket.priority)
                 DueLabel(dueDate: ticket.dueDate, resolved: ticket.resolved)
@@ -198,16 +200,24 @@ struct CreateTicketView: View {
                 if let error {
                     Label(error, systemImage: "exclamationmark.circle").foregroundStyle(Brand.danger)
                 }
+                Text(L.tr("ticket_create_title", project.name))
+                    .font(.subheadline)
+                    .foregroundStyle(Brand.muted)
                 TextField(L.tr("ticket_title"), text: $title, axis: .vertical)
                     .focused($focused)
                     .accessibilityIdentifier("ticket.create.title")
                 if !project.creatableTypes.isEmpty {
-                    Picker(L.tr("ticket_type"), selection: Binding(get: { typeId ?? project.creatableTypes[0].id }, set: { typeId = $0 })) {
+                    // Liste plutôt que menu : les noms longs reviennent à la ligne
+                    Picker(selection: Binding(get: { typeId ?? project.creatableTypes[0].id }, set: { typeId = $0 })) {
                         ForEach(project.creatableTypes) { type in Text(type.name).tag(type.id) }
+                    } label: {
+                        Text(L.tr("ticket_type")).foregroundStyle(Brand.muted)
                     }
+                    .pickerStyle(.inline)
                 }
             }
-            .navigationTitle(L.tr("ticket_create_title", project.name))
+            // Titre court (barre de navigation) ; le projet est rappelé dans le formulaire
+            .navigationTitle(L.tr("ticket_create"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

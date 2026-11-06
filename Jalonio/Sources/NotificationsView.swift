@@ -62,7 +62,7 @@ struct NotificationRow: View {
                 Text(text)
                     .font(item.read ? .body : .body.weight(.semibold))
                 if let when = L.relative(item.createdAt) {
-                    Text(when).font(.caption).foregroundStyle(.secondary)
+                    Text(when).font(.caption).foregroundStyle(Brand.muted)
                 }
             }
         }

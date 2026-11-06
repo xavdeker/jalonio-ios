@@ -39,7 +39,7 @@ struct TicketView: View {
         List {
             Section {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(ticket.project.name).font(.subheadline).foregroundStyle(.secondary)
+                    Text(ticket.project.name).font(.subheadline).foregroundStyle(Brand.muted)
                     Text(ticket.title)
                         .font(.title2.weight(.semibold))
                         .strikethrough(ticket.resolved)
@@ -55,7 +55,7 @@ struct TicketView: View {
                 statusRow(ticket)
                 assigneeRow(ticket)
                 if let type = project?.types.first(where: { $0.id == ticket.typeId }) {
-                    LabeledContent(L.tr("ticket_type")) { Text(type.name).foregroundStyle(Color(hex: type.color)) }
+                    LabeledContent(L.tr("ticket_type")) { TypeLabel(type: type) }
                 }
                 LabeledContent(L.tr("ticket_priority")) { PriorityLabel(priority: ticket.priority) }
                 if ticket.dueDate != nil {
@@ -66,25 +66,25 @@ struct TicketView: View {
                 }
             }
 
-            Section(L.tr("ticket_description")) {
+            Section(muted: L.tr("ticket_description")) {
                 if let description = ticket.description, !description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     Text(markdown(description)).textSelection(.enabled)
                 } else {
-                    Text(L.tr("ticket_no_description")).foregroundStyle(.secondary)
+                    Text(L.tr("ticket_no_description")).foregroundStyle(Brand.muted)
                 }
             }
 
             if !ticket.children.isEmpty {
-                Section(L.tr("ticket_subtasks")) {
+                Section(muted: L.tr("ticket_subtasks")) {
                     ForEach(ticket.children) { child in
                         NavigationLink(value: child.key) {
                             HStack {
                                 Image(systemName: child.resolved ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(child.resolved ? Brand.green : .secondary)
+                                    .foregroundStyle(child.resolved ? Brand.green : Brand.muted)
                                     .accessibilityLabel(child.resolved ? L.tr("ticket_resolved") : "")
                                 VStack(alignment: .leading) {
                                     Text(child.title).strikethrough(child.resolved)
-                                    Text(child.key).font(.caption.monospaced()).foregroundStyle(.secondary)
+                                    Text(child.key).font(.caption.monospaced()).foregroundStyle(Brand.muted)
                                 }
                             }
                         }
@@ -92,7 +92,7 @@ struct TicketView: View {
                 }
             }
 
-            Section(L.tr("ticket_activity")) {
+            Section(muted: L.tr("ticket_activity")) {
                 if ticket.permissions.comment {
                     commentComposer(ticket)
                 }
@@ -132,14 +132,18 @@ struct TicketView: View {
                     Text(assignee.displayName)
                 }
             } else {
-                Text(L.tr("ticket_unassigned")).foregroundStyle(.secondary)
+                Text(L.tr("ticket_unassigned")).foregroundStyle(Brand.muted)
             }
         }
         if ticket.permissions.edit, let me = model.me, ticket.assignee?.id != me.id {
             Button {
                 Task { await assignMe(me.id) }
             } label: {
-                Label(L.tr("ticket_assign_me"), systemImage: "person.badge.plus")
+                Label {
+                    Text(L.tr("ticket_assign_me")).fixedSize(horizontal: false, vertical: true)
+                } icon: {
+                    Image(systemName: "person.badge.plus")
+                }
             }
             .accessibilityIdentifier("ticket.assignMe")
         }
@@ -237,19 +241,19 @@ struct ActivityRow: View {
                         .font(.subheadline.weight(.semibold))
                     Spacer()
                     if let when = L.relative(item.createdAt) {
-                        Text(when).font(.caption).foregroundStyle(.secondary)
+                        Text(when).font(.caption).foregroundStyle(Brand.muted)
                     }
                 }
                 if item.kind == "comment" {
                     if item.deleted {
-                        Text(L.tr("ticket_comment_deleted")).italic().foregroundStyle(.secondary)
+                        Text(L.tr("ticket_comment_deleted")).italic().foregroundStyle(Brand.muted)
                     } else {
                         Text(item.body ?? "").textSelection(.enabled)
                     }
                 } else {
                     Text(L.tr("ticket_change", item.fieldLabel ?? item.field ?? "", item.from ?? "—", item.to ?? "—"))
                         .font(.callout)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Brand.muted)
                 }
             }
         }

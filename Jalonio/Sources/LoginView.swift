@@ -130,7 +130,6 @@ struct LoginView: View {
             }
             .accessibilityIdentifier("login.submit")
         } footer: {
-            // Gris secondaire trop pâle pour ce texte utile : couleur du texte principal
             Group {
                 if let origin {
                     Text(L.tr("login_workspace_resolved", ServerAddress.displayName(for: origin)))
@@ -140,7 +139,7 @@ struct LoginView: View {
                     Text(L.tr("login_workspace_invalid")).foregroundStyle(Brand.danger)
                 }
             }
-            .foregroundStyle(.primary)
+            .foregroundStyle(Brand.muted)
         }
     }
 
@@ -166,8 +165,9 @@ struct LoginView: View {
         } header: {
             Text(L.tr("login_two_factor_intro"))
                 .textCase(nil)
+                .foregroundStyle(Brand.muted)
         } footer: {
-            Text(L.tr("login_code_hint"))
+            Text(L.tr("login_code_hint")).foregroundStyle(Brand.muted)
         }
         .onAppear { focus = .code }
     }
