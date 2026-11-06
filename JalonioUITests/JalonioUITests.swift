@@ -39,6 +39,14 @@ final class JalonioUITests: XCTestCase {
     }
 
     /// Audit d'accessibilité d'Xcode (contraste, taille des cibles, textes, Dynamic Type).
+    /// Défauts de contraste signalés à tort, tous vérifiés sur les captures de la CI :
+    /// - salutation en noir sur fond clair, mesurée à travers le flou de l'en-tête de section ;
+    /// - en-tête « Type » (5,9:1) recouvert par le clavier, que l'audit mesure quand même.
+    private static let knownFalsePositives: Set<String> = [
+        "iPad|fiche ticket|Bonjour Camille Martin",
+        "iPhone|nouveau ticket|TYPE",
+    ]
+
     /// `modal` : feuille posée sur un arrière-plan assombri (iPad).
     private func audit(_ screen: String, modal: Bool = false) throws {
         do {
@@ -62,6 +70,12 @@ final class JalonioUITests: XCTestCase {
             // de la barre translucide, pas celui de l'application
             if issue.auditType == .contrast, let frame = issue.element?.frame, !self.visibleArea.contains(frame) {
                 print("AUDIT (hors écran) " + line)
+                return true
+            }
+            // Faux positifs connus, vérifiés sur les captures (liste fermée : tout autre défaut échoue)
+            if issue.auditType == .contrast, let label = issue.element?.label,
+               Self.knownFalsePositives.contains("\(self.isPad ? "iPad" : "iPhone")|\(screen)|\(label)") {
+                print("AUDIT (faux positif connu) " + line)
                 return true
             }
             // Feuille sur iPad : l'audit mesure le contraste à travers le voile de l'arrière-plan
