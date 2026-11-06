@@ -67,9 +67,13 @@ struct LoginView: View {
                             }
                         } label: {
                             Text(L.tr("login_forgot")).font(.body)
+                                .multilineTextAlignment(.leading)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                         Link(destination: URL(string: "https://app.jalonio.fr/inscription/")!) {
                             Text(L.tr("login_create_workspace")).font(.body)
+                                .multilineTextAlignment(.leading)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                     } else {
                         Button(L.tr("login_back")) {
