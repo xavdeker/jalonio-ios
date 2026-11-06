@@ -18,7 +18,7 @@ erreur() { echo "✗ $*" >&2; exit 1; }
 git fetch --quiet origin main
 [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ] || erreur "main n'est pas à jour avec GitHub (git push ou git pull)."
 gh secret list --repo xavdeker/jalonio-ios | grep -q '^APP_STORE_CONNECT_KEY' \
-    || erreur "Secret APP_STORE_CONNECT_KEY absent : gh secret set APP_STORE_CONNECT_KEY --repo xavdeker/jalonio-ios < ~/jalonio-keystore/AuthKey_Y7M35VBT29.p8"
+    || erreur "Secret APP_STORE_CONNECT_KEY absent : gh secret set APP_STORE_CONNECT_KEY --repo xavdeker/jalonio-ios < ~/jalonio-keystore/AuthKey_VRMQN6YM7C.p8"
 
 echo "→ Commit envoyé : $(git log --oneline -1)"
 gh workflow run testflight.yml --repo xavdeker/jalonio-ios --ref main

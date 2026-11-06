@@ -17,13 +17,13 @@ premier envoi vers TestFlight, essai sur un appareil réel, fiche, compte de dé
 
 ## 2. Signature et envoi
 
-Une clé d'API App Store Connect (« Jalonio CI », rôle « App Manager », Key ID
-`Y7M35VBT29`) permet d'envoyer une version sans Mac. Comme pour Android, le fichier
-`AuthKey_Y7M35VBT29.p8` reste **hors du dépôt** (`~/jalonio-keystore/`) et doit être
+Une clé d'API App Store Connect (« Jalonio CI », rôle « Admin », exigé par la signature gérée par Apple, Key ID
+`VRMQN6YM7C`) permet d'envoyer une version sans Mac. Comme pour Android, le fichier
+`AuthKey_VRMQN6YM7C.p8` reste **hors du dépôt** (`~/jalonio-keystore/`) et doit être
 sauvegardé ailleurs. Sur GitHub, il est le secret chiffré `APP_STORE_CONNECT_KEY` :
 
 ```bash
-gh secret set APP_STORE_CONNECT_KEY --repo xavdeker/jalonio-ios < ~/jalonio-keystore/AuthKey_Y7M35VBT29.p8
+gh secret set APP_STORE_CONNECT_KEY --repo xavdeker/jalonio-ios < ~/jalonio-keystore/AuthKey_VRMQN6YM7C.p8
 ```
 
 `./deploy-ios.sh` lance le workflow « TestFlight » (`.github/workflows/testflight.yml`) :

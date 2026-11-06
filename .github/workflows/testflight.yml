@@ -14,7 +14,7 @@ concurrency:
 
 env:
   # Identifiants publics de la clé d'API ; la clé elle-même est le secret APP_STORE_CONNECT_KEY
-  ASC_KEY_ID: Y7M35VBT29
+  ASC_KEY_ID: VRMQN6YM7C
   ASC_ISSUER_ID: 906be997-abb7-40aa-bf74-48ef0a70a28c
   TEAM_ID: 2F44NZ85VT
 
