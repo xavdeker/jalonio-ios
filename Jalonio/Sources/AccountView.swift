@@ -25,6 +25,7 @@ struct AccountView: View {
                                 Text(me.email).font(.subheadline).foregroundStyle(Brand.muted)
                                 Text(L.tr("account_workspace", me.organization.name, model.workspace ?? ""))
                                     .font(.caption)
+                                    .fixedSize(horizontal: false, vertical: true)
                                     .foregroundStyle(Brand.muted)
                             }
                         }

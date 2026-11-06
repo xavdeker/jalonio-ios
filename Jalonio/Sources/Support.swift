@@ -130,7 +130,7 @@ struct EmptyState: View {
     let systemImage: String
 
     var body: some View {
-        ContentUnavailableView(title, systemImage: systemImage, description: Text(text))
+        ContentUnavailableView(title, systemImage: systemImage, description: Text(text).foregroundStyle(Brand.muted))
     }
 }
 

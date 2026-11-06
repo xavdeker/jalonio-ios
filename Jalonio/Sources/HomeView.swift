@@ -8,9 +8,11 @@ import SwiftUI
 struct HomeView: View {
     @Environment(AppModel.self) private var model
     @State private var selection: String?
+    /// Liste et fiche côte à côte sur iPad, sans voile sur la fiche
+    @State private var columns = NavigationSplitViewVisibility.all
 
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $columns) {
             Loadable(load: { try await model.api.myTickets().sortedForHome() }, id: model.revision) { tickets, reload in
                 List(selection: $selection) {
                     Section {
@@ -38,6 +40,7 @@ struct HomeView: View {
                 }
             }
         }
+        .navigationSplitViewStyle(.balanced)
     }
 }
 

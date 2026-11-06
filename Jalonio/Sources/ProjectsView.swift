@@ -46,6 +46,8 @@ struct ProjectsView: View {
                 }
             }
         }
+        // Colonnes côte à côte, sans voile sur le détail (en portrait, iOS les superpose sinon)
+        .navigationSplitViewStyle(.balanced)
         .onChange(of: project) { _, _ in ticket = nil }
     }
 }
@@ -207,13 +209,15 @@ struct CreateTicketView: View {
                     .focused($focused)
                     .accessibilityIdentifier("ticket.create.title")
                 if !project.creatableTypes.isEmpty {
-                    // Liste plutôt que menu : les noms longs reviennent à la ligne
-                    Picker(selection: Binding(get: { typeId ?? project.creatableTypes[0].id }, set: { typeId = $0 })) {
-                        ForEach(project.creatableTypes) { type in Text(type.name).tag(type.id) }
-                    } label: {
-                        Text(L.tr("ticket_type")).foregroundStyle(Brand.muted)
+                    // Liste plutôt que menu : les noms longs reviennent à la ligne. En-tête à part :
+                    // iOS impose son gris (trop pâle) au libellé d'un sélecteur en liste.
+                    Section(muted: L.tr("ticket_type")) {
+                        Picker(L.tr("ticket_type"), selection: Binding(get: { typeId ?? project.creatableTypes[0].id }, set: { typeId = $0 })) {
+                            ForEach(project.creatableTypes) { type in Text(type.name).tag(type.id) }
+                        }
+                        .pickerStyle(.inline)
+                        .labelsHidden()
                     }
-                    .pickerStyle(.inline)
                 }
             }
             // Titre court (barre de navigation) ; le projet est rappelé dans le formulaire

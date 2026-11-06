@@ -139,10 +139,9 @@ struct TicketView: View {
             Button {
                 Task { await assignMe(me.id) }
             } label: {
-                Label {
+                HStack(spacing: 8) {
+                    Image(systemName: "person.badge.plus").accessibilityHidden(true)
                     Text(L.tr("ticket_assign_me")).fixedSize(horizontal: false, vertical: true)
-                } icon: {
-                    Image(systemName: "person.badge.plus")
                 }
             }
             .accessibilityIdentifier("ticket.assignMe")
