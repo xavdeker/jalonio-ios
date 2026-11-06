@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: EUPL-1.2
 
+import UIKit
 import XCTest
 
 /// Parcours de l'application sur iPhone et sur iPad, en français, avec le faux serveur
@@ -100,13 +101,15 @@ final class JalonioUITests: XCTestCase {
 
         // Création rapide
         app.buttons["ticket.create"].tap()
-        let title = app.textFields["ticket.create.title"]
+        // Champ sur plusieurs lignes (axis: .vertical) : vue de texte, pas champ de texte
+        let title = app.descendants(matching: .any).matching(identifier: "ticket.create.title").firstMatch
         XCTAssertTrue(title.waitForExistence(timeout: 5))
+        title.tap()
         title.typeText("Vérifier l’accès PMR du guichet")
         try audit("nouveau ticket")
         capture("5-nouveau-ticket")
         app.buttons["ticket.create.submit"].tap()
-        XCTAssertTrue(title.waitForNonExistence(timeout: 5))
+        XCTAssertTrue(title.waitUntilGone(timeout: 5))
 
         // Notifications
         app.buttons["Alertes"].firstMatch.tap()
@@ -132,11 +135,13 @@ final class JalonioUITests: XCTestCase {
 private extension XCUIElement {
     func clearText() {
         guard let value = value as? String, !value.isEmpty else { return }
-        tap()
+        // Curseur en fin de texte : toucher le bord droit du champ
+        coordinate(withNormalizedOffset: CGVector(dx: 0.97, dy: 0.5)).tap()
         typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: value.count))
     }
 
-    func waitForNonExistence(timeout: TimeInterval) -> Bool {
+    /// (Nom distinct de `waitForNonExistence(timeout:)` d'Xcode 16 : pas d'ambiguïté.)
+    func waitUntilGone(timeout: TimeInterval) -> Bool {
         let expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: self)
         return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }

@@ -147,14 +147,17 @@ struct PriorityLabel: View {
     let priority: String
 
     var body: some View {
-        let (symbol, color): (String, Color) = switch priority {
-        case "critical": ("exclamationmark.2", .red)
-        case "high": ("arrow.up", .orange)
-        case "low": ("arrow.down", .secondary)
-        default: ("equal", .secondary)
+        Label(L.priority(priority), systemImage: style.symbol)
+            .foregroundStyle(style.color)
+    }
+
+    private var style: (symbol: String, color: Color) {
+        switch priority {
+        case "critical": return ("exclamationmark.2", .red)
+        case "high": return ("arrow.up", .orange)
+        case "low": return ("arrow.down", .secondary)
+        default: return ("equal", .secondary)
         }
-        Label(L.priority(priority), systemImage: symbol)
-            .foregroundStyle(color)
     }
 }
 

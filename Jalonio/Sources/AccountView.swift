@@ -2,6 +2,7 @@
 
 import JalonioKit
 import SwiftUI
+import UIKit
 
 /// Compte : personne et espace, langue, liens web et juridiques, déconnexion.
 struct AccountView: View {

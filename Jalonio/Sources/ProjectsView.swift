@@ -12,7 +12,10 @@ struct ProjectsView: View {
     var body: some View {
         NavigationSplitView {
             Loadable(load: { try await model.api.projects() }, id: model.revision) { projects, reload in
-                let visible = projects.filter { !$0.archived }.sorted { ($0.favorite ? 0 : 1, $0.name) < ($1.favorite ? 0 : 1, $1.name) }
+                // Favoris d'abord, puis par nom
+                let visible = projects.filter { !$0.archived }.sorted { a, b in
+                    a.favorite != b.favorite ? a.favorite : a.name < b.name
+                }
                 List(selection: $project) {
                     if visible.isEmpty {
                         EmptyState(title: L.tr("projects_empty_title"), text: L.tr("projects_empty_text"), systemImage: "folder")
@@ -88,9 +91,10 @@ struct ProjectTicketsView: View {
     }
 
     var body: some View {
-        Loadable(load: {
-            async let project = model.api.project(key)
-            async let page = model.api.tickets(project: key)
+        Loadable(load: { () async throws -> Snapshot in
+            let api = model.api, key = self.key
+            async let project = api.project(key)
+            async let page = api.tickets(project: key)
             return Snapshot(project: try await project, tickets: try await page.items)
         }, id: model.revision) { data, reload in
             let statuses = data.project.orderedStatuses

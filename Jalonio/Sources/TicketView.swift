@@ -2,6 +2,7 @@
 
 import JalonioKit
 import SwiftUI
+import UIKit
 
 /// Fiche ticket : statut, « M'assigner », champs, description, sous-tâches, activité,
 /// commentaire. Les autres modifications se font dans l'application web.
@@ -168,8 +169,9 @@ struct TicketView: View {
             let detail = try await model.api.ticket(key)
             ticket = detail
             loadError = nil
-            async let projectDetail = model.api.project(detail.project.key)
-            async let items = model.api.activity(key)
+            let api = model.api, key = self.key
+            async let projectDetail = api.project(detail.project.key)
+            async let items = api.activity(key)
             project = try? await projectDetail
             activity = (try? await items) ?? activity
         } catch is CancellationError {
@@ -231,7 +233,7 @@ struct ActivityRow: View {
             Avatar(initials: item.author?.initials ?? "J", size: 28)
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text(item.author?.displayName ?? item.automation.map { _ in "Jalonio" } ?? L.tr("someone"))
+                    Text(authorName)
                         .font(.subheadline.weight(.semibold))
                     Spacer()
                     if let when = L.relative(item.createdAt) {
@@ -253,6 +255,12 @@ struct ActivityRow: View {
         }
         .padding(.vertical, 2)
         .accessibilityElement(children: .combine)
+    }
+
+    /// Auteur, « Jalonio » pour une automatisation, sinon « Quelqu'un ».
+    private var authorName: String {
+        if let name = item.author?.displayName { return name }
+        return item.automation != nil ? "Jalonio" : L.tr("someone")
     }
 }
 

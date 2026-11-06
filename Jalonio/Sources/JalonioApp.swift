@@ -21,6 +21,10 @@ extension AppModel {
     /// `-ui-demo`, en plus, faux serveur aux réponses enregistrées (DEBUG seulement).
     static func forLaunch() -> AppModel {
         let arguments = ProcessInfo.processInfo.arguments
+        if arguments.contains("-ui-testing") || arguments.contains("-ui-demo") {
+            // Adresse saisie au lancement précédent (@AppStorage de LoginView) : effacée
+            UserDefaults.standard.removeObject(forKey: "jalonio.lastWorkspace")
+        }
         #if DEBUG
         if arguments.contains("-ui-demo") {
             return AppModel(server: MemoryServerStore(), tokens: MemoryTokenStore(), transport: DemoTransport())
