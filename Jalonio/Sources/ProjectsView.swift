@@ -2,6 +2,7 @@
 
 import JalonioKit
 import SwiftUI
+import UIKit
 
 /// Projets → tickets du projet → fiche ticket. Trois colonnes sur iPad, une pile sur iPhone.
 struct ProjectsView: View {
@@ -89,7 +90,6 @@ struct ProjectTicketsView: View {
     @State private var search = ""
     @State private var creating = false
     @State private var showBoard = false
-    @Environment(\.horizontalSizeClass) private var sizeClass
 
     private struct Snapshot {
         let project: ProjectDetail
@@ -130,8 +130,9 @@ struct ProjectTicketsView: View {
             .refreshable { await reload() }
             .navigationTitle(data.project.name)
             .toolbar {
-                // Tableau Kanban : écran large seulement (iPad), en plein écran pour voir les colonnes
-                if sizeClass == .regular {
+                // Tableau Kanban sur iPad, en plein écran pour voir les colonnes. Type d'appareil et
+                // non largeur : dans une colonne de NavigationSplitView, iOS annonce une largeur « compacte ».
+                if UIDevice.current.userInterfaceIdiom == .pad {
                     ToolbarItem(placement: .primaryAction) {
                         Button {
                             showBoard = true
