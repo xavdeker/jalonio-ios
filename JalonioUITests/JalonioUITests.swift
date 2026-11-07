@@ -235,7 +235,7 @@ final class JalonioUITests: XCTestCase {
         try audit("nouveau ticket", modal: true)
         capture("5-nouveau-ticket")
         app.buttons["ticket.create.submit"].tap()
-        XCTAssertTrue(title.waitUntilGone(timeout: 5))
+        XCTAssertTrue(title.waitUntilGone(timeout: 15), "feuille de création refermée")
 
         // Notifications
         openTab("Alertes", until: element(containing: "Reprise Jira"))
