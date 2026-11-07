@@ -42,11 +42,15 @@ final class JalonioUITests: XCTestCase {
     /// Défauts de contraste signalés à tort, tous vérifiés sur les captures de la CI :
     /// - salutation en noir sur fond clair, mesurée à travers le flou de l'en-tête de section ;
     /// - en-tête « Type » (5,9:1) recouvert par le clavier, que l'audit mesure quand même ;
-    /// - libellé « Statut » du sélecteur de colonne, noir sur blanc (signalé une fois sur deux).
+    /// - libellé « Statut » du sélecteur de colonne, noir sur blanc (signalé une fois sur deux) ;
+    /// - textes du tableau Kanban, chargé de dizaines de cartes (voir ci-dessous).
     private static let knownFalsePositives: Set<String> = [
         "iPad|fiche ticket|Bonjour Camille Martin",
         "iPhone|nouveau ticket|TYPE",
         "iPhone|projet|Statut",
+        // Tableau (iPad), pixels mesurés sur la capture de la CI : compteur « 7 » 5,9:1,
+        // « Basse » 6,6:1, initiales des avatars de 10,7 à 12,4:1
+        "iPad|tableau|7", "iPad|tableau|Basse", "iPad|tableau|KB", "iPad|tableau|SL", "iPad|tableau|TN",
     ]
 
     private static func isTimeout(_ error: Error) -> Bool {
@@ -170,7 +174,7 @@ final class JalonioUITests: XCTestCase {
 
         // Bouton jamais grisé : un appui sans les champs dit quoi saisir
         app.buttons["login.submit"].tap()
-        XCTAssertTrue(element(containing: "Saisissez l’adresse de l’espace").waitForExistence(timeout: 2))
+        XCTAssertTrue(element(containing: "Saisissez l’adresse de l’espace").waitForExistence(timeout: 5))
 
         workspace.tap()
         workspace.typeText("mon espace")

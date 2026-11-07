@@ -177,7 +177,8 @@ struct TicketCardRow: View {
                 .font(.body.weight(.medium))
                 .strikethrough(ticket.resolved)
             HStack(spacing: 8) {
-                Text(ticket.key).font(.caption.monospaced())
+                // Clé jamais coupée (cartes étroites du tableau) : c'est le nom de la personne qui se tronque
+                Text(ticket.key).font(.caption.monospaced()).fixedSize()
                 if let type {
                     TypeLabel(type: type)
                 }
