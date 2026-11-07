@@ -133,6 +133,16 @@ final class JalonioUITests: XCTestCase {
         return area
     }
 
+    /// Onglet ouvert jusqu'à voir `target` : sur iPad, le simulateur perd parfois l'appui
+    /// sur la barre d'onglets flottante (vu sur la vidéo d'une CI), on touche à nouveau.
+    private func openTab(_ name: String, until target: XCUIElement) {
+        for _ in 0..<3 {
+            app.buttons[name].firstMatch.tap()
+            if target.waitForExistence(timeout: 5) { return }
+        }
+        XCTFail("onglet « \(name) » : contenu introuvable")
+    }
+
     private func element(containing text: String) -> XCUIElement {
         app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", text)).firstMatch
     }
@@ -190,9 +200,8 @@ final class JalonioUITests: XCTestCase {
         capture("3-ticket")
 
         // Projets → PORTAIL → tickets
-        app.buttons["Projets"].firstMatch.tap()
         let portail = element(containing: "PORTAIL ·")
-        XCTAssertTrue(portail.waitForExistence(timeout: 10))
+        openTab("Projets", until: portail)
         portail.tap()
         XCTAssertTrue(app.buttons["ticket.create"].waitForExistence(timeout: 10))
         try audit("projet")
@@ -228,15 +237,13 @@ final class JalonioUITests: XCTestCase {
         XCTAssertTrue(title.waitUntilGone(timeout: 5))
 
         // Notifications
-        app.buttons["Alertes"].firstMatch.tap()
-        XCTAssertTrue(element(containing: "Reprise Jira").waitForExistence(timeout: 10))
+        openTab("Alertes", until: element(containing: "Reprise Jira"))
         try audit("notifications")
         capture("6-alertes")
 
         // Compte et déconnexion
-        app.buttons["Compte"].firstMatch.tap()
         let logout = app.buttons["account.logout"]
-        XCTAssertTrue(element(containing: "Camille Martin").waitForExistence(timeout: 10))
+        openTab("Compte", until: element(containing: "Camille Martin"))
         try audit("compte")
         capture("7-compte")
         // Bas de la liste : la ligne n'existe qu'une fois affichée
