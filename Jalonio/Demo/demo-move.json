@@ -1,0 +1,20 @@
+{
+ "id": "01M5DY6TDTNKSD62DG7Y51G3PC",
+ "key": "PORTAIL-1",
+ "number": 1,
+ "title": "Prise de rendez-vous en ligne",
+ "typeId": 99,
+ "statusId": 80,
+ "priority": "high",
+ "assignee": null,
+ "estimate": null,
+ "startDate": null,
+ "dueDate": null,
+ "labels": [],
+ "parentKey": null,
+ "rank": "i",
+ "resolved": false,
+ "version": 2,
+ "updatedAt": "2026-10-21T00:36:32+00:00",
+ "epicKey": null
+}

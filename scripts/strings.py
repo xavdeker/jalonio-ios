@@ -23,6 +23,43 @@ LANGS = {"values": "en", "values-fr": "fr", "values-de": "de", "values-es": "es"
 
 # Textes propres à iOS : clé → {langue: texte}
 EXTRA = {
+    # Tableau Kanban (iPad) : textes repris du tableau web (frontend/messages/board.<langue>.json)
+    "close": {"fr": "Fermer", "en": "Close", "de": "Schließen", "es": "Cerrar", "it": "Chiudi", "pt": "Fechar"},
+    "board_open": {"fr": "Tableau", "en": "Board", "de": "Board", "es": "Tablero", "it": "Bacheca", "pt": "Quadro"},
+    "board_column_empty": {"fr": "Aucun ticket", "en": "No ticket", "de": "Keine Tickets", "es": "Ningún ticket", "it": "Nessun ticket", "pt": "Nenhum ticket"},
+    "board_no_sprint_title": {
+        "fr": "Aucun sprint en cours.", "en": "No sprint in progress.", "de": "Kein laufender Sprint.",
+        "es": "Ningún sprint en curso.", "it": "Nessuno sprint in corso.", "pt": "Nenhum sprint em curso.",
+    },
+    "board_no_sprint_text": {
+        "fr": "Le tableau affiche le sprint en cours. Préparez et démarrez un sprint depuis le backlog.",
+        "en": "The board shows the current sprint. Prepare and start a sprint from the backlog.",
+        "de": "Das Board zeigt den laufenden Sprint. Bereiten Sie im Backlog einen Sprint vor und starten Sie ihn.",
+        "es": "El tablero muestra el sprint en curso. Prepare e inicie un sprint desde el backlog.",
+        "it": "La bacheca mostra lo sprint in corso. Preparare e avviare uno sprint dal backlog.",
+        "pt": "O quadro mostra o sprint em curso. Prepare e inicie um sprint a partir do backlog.",
+    },
+    "board_sprint_until": {
+        "fr": "%1$@ · jusqu’au %2$@", "en": "%1$@ · until %2$@", "de": "%1$@ · bis %2$@",
+        "es": "%1$@ · hasta el %2$@", "it": "%1$@ · fino al %2$@", "pt": "%1$@ · até %2$@",
+    },
+    "board_move_to": {"fr": "Déplacer vers…", "en": "Move to…", "de": "Verschieben nach…", "es": "Mover a…", "it": "Sposta in…", "pt": "Mover para…"},
+    "board_move_to_status": {
+        "fr": "Déplacer vers %@", "en": "Move to %@", "de": "Nach %@ verschieben",
+        "es": "Mover a %@", "it": "Sposta in %@", "pt": "Mover para %@",
+    },
+    "board_move_top": {
+        "fr": "En haut de la colonne", "en": "Top of the column", "de": "An den Anfang der Spalte",
+        "es": "Arriba de la columna", "it": "In cima alla colonna", "pt": "Para o topo da coluna",
+    },
+    "board_move_bottom": {
+        "fr": "En bas de la colonne", "en": "Bottom of the column", "de": "An das Ende der Spalte",
+        "es": "Abajo de la columna", "it": "In fondo alla colonna", "pt": "Para o fim da coluna",
+    },
+    "board_moved": {
+        "fr": "%1$@ déplacé dans %2$@.", "en": "%1$@ moved to %2$@.", "de": "%1$@ nach %2$@ verschoben.",
+        "es": "%1$@ movido a %2$@.", "it": "%1$@ spostato in %2$@.", "pt": "%1$@ movido para %2$@.",
+    },
     "login_fields_missing": {
         "fr": "Saisissez l’adresse de l’espace, votre adresse e-mail et votre mot de passe.",
         "en": "Enter the workspace address, your email address and your password.",

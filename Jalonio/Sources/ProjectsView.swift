@@ -24,7 +24,7 @@ struct ProjectsView: View {
                             .listRowBackground(Color.clear)
                     }
                     ForEach(visible) { item in
-                        ProjectRow(project: item).tag(item.key)
+                        ProjectRow(project: item).tag(item.key).selectedRow(project == item.key)
                     }
                 }
                 .refreshable { await reload() }
@@ -88,6 +88,8 @@ struct ProjectTicketsView: View {
     @State private var status: Int?
     @State private var search = ""
     @State private var creating = false
+    @State private var showBoard = false
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     private struct Snapshot {
         let project: ProjectDetail
@@ -121,13 +123,24 @@ struct ProjectTicketsView: View {
                         .listRowBackground(Color.clear)
                 }
                 ForEach(tickets) { ticket in
-                    TicketCardRow(ticket: ticket, project: data.project).tag(ticket.key)
+                    TicketCardRow(ticket: ticket, project: data.project).tag(ticket.key).selectedRow(selection == ticket.key)
                 }
             }
             .searchable(text: $search, prompt: L.tr("ticket_search"))
             .refreshable { await reload() }
             .navigationTitle(data.project.name)
             .toolbar {
+                // Tableau Kanban : écran large seulement (iPad), en plein écran pour voir les colonnes
+                if sizeClass == .regular {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button {
+                            showBoard = true
+                        } label: {
+                            Label(L.tr("board_open"), systemImage: "rectangle.split.3x1")
+                        }
+                        .accessibilityIdentifier("board.open")
+                    }
+                }
                 if data.project.permissions.contribute || data.project.permissions.manage {
                     ToolbarItem(placement: .primaryAction) {
                         Button {
@@ -138,6 +151,9 @@ struct ProjectTicketsView: View {
                         .accessibilityIdentifier("ticket.create")
                     }
                 }
+            }
+            .fullScreenCover(isPresented: $showBoard) {
+                BoardView(project: data.project)
             }
             .sheet(isPresented: $creating) {
                 CreateTicketView(project: data.project) { created in

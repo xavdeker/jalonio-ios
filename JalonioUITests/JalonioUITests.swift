@@ -191,6 +191,23 @@ final class JalonioUITests: XCTestCase {
         try audit("projet")
         capture("4-projet")
 
+        // Tableau Kanban (iPad) : colonnes par statut, cartes dans l'ordre du tableau
+        if isPad {
+            app.buttons["board.open"].tap()
+            let card = app.descendants(matching: .any)["board.card.PORTAIL-7"]
+            XCTAssertTrue(card.waitForExistence(timeout: 10))
+            XCTAssertTrue(app.descendants(matching: .any)["board.card.PORTAIL-9"].exists, "deuxième carte de « À faire »")
+            try audit("tableau")
+            capture("4b-tableau")
+            // Fiche ouverte depuis le tableau, puis retour et fermeture
+            card.tap()
+            XCTAssertTrue(element(containing: "Prise de rendez-vous en ligne").waitForExistence(timeout: 10))
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+            XCTAssertTrue(app.buttons["board.close"].waitForExistence(timeout: 5))
+            app.buttons["board.close"].tap()
+            XCTAssertTrue(app.buttons["ticket.create"].waitForExistence(timeout: 5))
+        }
+
         // Création rapide
         app.buttons["ticket.create"].tap()
         // Champ sur plusieurs lignes (axis: .vertical) : vue de texte, pas champ de texte

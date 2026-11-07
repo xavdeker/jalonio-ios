@@ -59,6 +59,9 @@ enum Brand {
     static let warning = Color("Warning")
     /// Texte atténué (≥ 4,5:1) : le gris secondaire d'iOS ne fait que 3,4:1 sur fond blanc.
     static let muted = Color("Muted")
+    /// Fond d'une ligne sélectionnée : tous les textes de l'application y restent ≥ 4,5:1
+    /// (sur le fond vert du système, le texte n'était pas lisible).
+    static let selection = Color("Selection")
 }
 
 extension Color {
@@ -200,6 +203,24 @@ struct TypeLabel: View {
         HStack(spacing: 4) {
             Circle().fill(Color(hex: type.color)).frame(width: 8, height: 8).accessibilityHidden(true)
             Text(type.name).foregroundStyle(Brand.muted)
+        }
+    }
+}
+
+extension View {
+    /// Ligne sélectionnée d'une liste (iPad) : fond clair conforme et barre verte à gauche
+    /// (la sélection ne repose pas sur la seule couleur), à la place du fond vert du système.
+    /// L'importance du fond reste « standard » : iOS ne passe pas les textes en blanc.
+    func selectedRow(_ selected: Bool) -> some View {
+        environment(\.backgroundProminence, .standard)
+            .listRowBackground(selected ? SelectionBackground() : nil)
+    }
+}
+
+private struct SelectionBackground: View {
+    var body: some View {
+        Brand.selection.overlay(alignment: .leading) {
+            Brand.green.frame(width: 4)
         }
     }
 }

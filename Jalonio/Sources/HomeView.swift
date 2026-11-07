@@ -21,7 +21,7 @@ struct HomeView: View {
                                 .listRowBackground(Color.clear)
                         }
                         ForEach(tickets) { ticket in
-                            MyTicketRow(ticket: ticket).tag(ticket.key)
+                            MyTicketRow(ticket: ticket).tag(ticket.key).selectedRow(selection == ticket.key)
                         }
                     } header: {
                         if let me = model.me { Text(L.tr("home_hello", me.displayName)).textCase(nil).foregroundStyle(.primary) }

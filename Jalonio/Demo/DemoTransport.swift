@@ -5,7 +5,8 @@ import Foundation
 import JalonioKit
 
 /// Faux serveur des tests d'interface (`-ui-demo`) : vraies réponses enregistrées du
-/// backend de test (données de démonstration). Absent de la version publiée : code sous
+/// backend de test (données de démonstration) ; le tableau et le déplacement reprennent
+/// les cartes de la liste des tickets (même format côté serveur). Absent de la version publiée : code sous
 /// DEBUG et fichiers `demo-*.json` exclus en Release (project.yml).
 struct DemoTransport: HTTPTransport {
     func send(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
@@ -20,6 +21,8 @@ struct DemoTransport: HTTPTransport {
         case ("GET", "projects"): (200, "projects")
         case ("GET", "notifications"): (200, "notifications_limit_50")
         case ("POST", "notifications/read"): (200, nil)
+        case ("GET", let p) where p.hasPrefix("projects/") && p.hasSuffix("/board"): (200, "projects_PORTAIL_board")
+        case ("POST", let p) where p.hasPrefix("tickets/") && p.hasSuffix("/move"): (200, "move")
         case (_, let p) where p.hasPrefix("projects/") && p.hasSuffix("/tickets") && method == "GET": (200, "projects_PORTAIL_tickets_perPage_300")
         case (_, let p) where p.hasPrefix("projects/") && p.hasSuffix("/tickets"): (201, "tickets_PORTAIL-1")
         case (_, let p) where p.hasPrefix("projects/"): (200, "projects_PORTAIL")

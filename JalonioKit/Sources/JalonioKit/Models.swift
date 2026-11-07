@@ -552,3 +552,43 @@ public enum JSONValue: Codable, Sendable, Equatable {
         }
     }
 }
+
+// MARK: - Tableau
+
+public struct SprintInfo: Decodable, Sendable, Equatable {
+    public var id: Int
+    public var name: String
+    public var goal: String?
+    public var endDate: String?
+
+    enum CodingKeys: String, CodingKey { case id, name, goal, endDate }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(Int.self, forKey: .id)
+        name = c.value(.name, or: "")
+        goal = c.optional(.goal)
+        endDate = c.optional(.endDate)
+    }
+}
+
+/// Tableau du projet (`GET /projects/{clé}/board`, le même que celui du web) : tickets du
+/// sprint en cours si les sprints sont activés, sinon tickets ouverts et terminés récemment,
+/// dans l'ordre du tableau.
+public struct BoardData: Decodable, Sendable, Equatable {
+    public var sprint: SprintInfo?
+    public var sprintsEnabled: Bool
+    public var tickets: [TicketCard]
+
+    enum CodingKeys: String, CodingKey { case sprint, sprintsEnabled, tickets }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        sprint = c.optional(.sprint)
+        sprintsEnabled = c.value(.sprintsEnabled, or: false)
+        tickets = c.value(.tickets, or: [])
+    }
+
+    /// Sprints activés sans sprint en cours : le tableau est vide par construction.
+    public var waitingForSprint: Bool { sprintsEnabled && sprint == nil }
+}

@@ -64,6 +64,16 @@ extension APIClient {
         try await send("PATCH", "tickets/\(ticket.key)", body: TicketUpdate(field: .assignee(userId), version: ticket.version))
     }
 
+    /// Tableau du projet, dans l'ordre des colonnes (comme sur le web).
+    public func board(project key: String) async throws -> BoardData {
+        try await send("GET", "projects/\(key)/board")
+    }
+
+    /// Déplacement sur le tableau : statut et place entre deux voisins (`nil` : bord de colonne).
+    public func move(_ key: String, statusId: Int, after afterKey: String?, before beforeKey: String?) async throws -> TicketCard {
+        try await send("POST", "tickets/\(key)/move", body: MoveRequest(statusId: statusId, afterKey: afterKey, beforeKey: beforeKey))
+    }
+
     public func activity(_ key: String) async throws -> [ActivityItem] {
         try await send("GET", "tickets/\(key)/activity")
     }
@@ -82,6 +92,12 @@ extension APIClient {
     public func markAllRead() async throws -> UnreadCount {
         try await send("POST", "notifications/read", body: ["all": true])
     }
+}
+
+struct MoveRequest: Encodable {
+    let statusId: Int
+    let afterKey: String?
+    let beforeKey: String?
 }
 
 /// Modification d'un ticket : un champ et la version lue (verrou optimiste du serveur).
