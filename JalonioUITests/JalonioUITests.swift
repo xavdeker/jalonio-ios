@@ -181,11 +181,10 @@ final class JalonioUITests: XCTestCase {
         XCTAssertTrue(element(containing: "mairie-x.jalonio.fr").waitForExistence(timeout: 2))
     }
 
-    func testTourOfTheApp() throws {
+    /// Connexion à l'espace de démonstration (faux serveur).
+    private func signInDemo() {
         app.launchArguments.append("-ui-demo")
         app.launch()
-
-        // Connexion
         let workspace = app.textFields["login.workspace"]
         XCTAssertTrue(workspace.waitForExistence(timeout: 10))
         workspace.tap()
@@ -195,6 +194,10 @@ final class JalonioUITests: XCTestCase {
         app.secureTextFields["login.password"].tap()
         app.secureTextFields["login.password"].typeText("demo")
         app.buttons["login.submit"].tap()
+    }
+
+    func testTourOfTheApp() throws {
+        signInDemo()
 
         // Accueil : mes tickets
         let myTicket = element(containing: "Nouveau poste pour l")
@@ -217,23 +220,6 @@ final class JalonioUITests: XCTestCase {
         XCTAssertTrue(app.buttons["ticket.create"].waitForExistence(timeout: 10))
         try audit("projet")
         capture("4-projet")
-
-        // Tableau Kanban (iPad) : colonnes par statut, cartes dans l'ordre du tableau
-        if isPad {
-            app.buttons["board.open"].tap()
-            let card = app.descendants(matching: .any)["board.card.PORTAIL-7"]
-            XCTAssertTrue(card.waitForExistence(timeout: 10))
-            XCTAssertTrue(app.descendants(matching: .any)["board.card.PORTAIL-9"].exists, "deuxième carte de « À faire »")
-            try audit("tableau", heavy: true)
-            capture("4b-tableau")
-            // Fiche ouverte depuis le tableau, puis retour et fermeture
-            card.tap()
-            XCTAssertTrue(element(containing: "Prise de rendez-vous en ligne").waitForExistence(timeout: 10))
-            app.navigationBars.buttons.element(boundBy: 0).tap()
-            XCTAssertTrue(app.buttons["board.close"].waitForExistence(timeout: 5))
-            app.buttons["board.close"].tap()
-            XCTAssertTrue(app.buttons["ticket.create"].waitForExistence(timeout: 5))
-        }
 
         // Création rapide
         app.buttons["ticket.create"].tap()
@@ -268,6 +254,38 @@ final class JalonioUITests: XCTestCase {
         XCTAssertTrue(confirm.waitForExistence(timeout: 5))
         confirm.tap()
         XCTAssertTrue(app.textFields["login.workspace"].waitForExistence(timeout: 10))
+    }
+}
+
+extension JalonioUITests {
+    /// Tableau Kanban (iPad) : colonnes par statut, cartes dans l'ordre du tableau, fiche ouverte
+    /// depuis une carte. Test à part et en dernier : sur ce tableau de dizaines de cartes, l'audit
+    /// d'accessibilité d'Xcode n'aboutit pas toujours et bloque ensuite les requêtes du test ;
+    /// il est donc tenté à la fin, quand tout le reste est vérifié.
+    func testZBoardOnIPad() throws {
+        try XCTSkipUnless(UIDevice.current.userInterfaceIdiom == .pad, "tableau sur iPad seulement")
+        signInDemo()
+        XCTAssertTrue(element(containing: "Nouveau poste pour l").waitForExistence(timeout: 10))
+        let portail = element(containing: "PORTAIL ·")
+        openTab("Projets", until: portail)
+        portail.tap()
+        let open = app.buttons["board.open"]
+        XCTAssertTrue(open.waitForExistence(timeout: 10), "bouton Tableau")
+        open.tap()
+
+        let card = app.descendants(matching: .any)["board.card.PORTAIL-7"]
+        XCTAssertTrue(card.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.descendants(matching: .any)["board.card.PORTAIL-9"].exists, "deuxième carte de « À faire »")
+        XCTAssertTrue(element(containing: "En revue").exists, "colonne « En revue »")
+        capture("4b-tableau")
+
+        // Fiche ouverte depuis le tableau, puis retour au tableau
+        card.tap()
+        XCTAssertTrue(element(containing: "Prise de rendez-vous en ligne").waitForExistence(timeout: 10))
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.buttons["board.close"].waitForExistence(timeout: 5))
+
+        try audit("tableau", heavy: true)
     }
 }
 
