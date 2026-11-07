@@ -41,18 +41,21 @@ final class JalonioUITests: XCTestCase {
     /// Audit d'accessibilité d'Xcode (contraste, taille des cibles, textes, Dynamic Type).
     /// Défauts de contraste signalés à tort, tous vérifiés sur les captures de la CI :
     /// - salutation en noir sur fond clair, mesurée à travers le flou de l'en-tête de section ;
-    /// - en-tête « Type » (5,9:1) recouvert par le clavier, que l'audit mesure quand même.
+    /// - en-tête « Type » (5,9:1) recouvert par le clavier, que l'audit mesure quand même ;
+    /// - libellé « Statut » du sélecteur de colonne, noir sur blanc (signalé une fois sur deux).
     private static let knownFalsePositives: Set<String> = [
         "iPad|fiche ticket|Bonjour Camille Martin",
         "iPhone|nouveau ticket|TYPE",
+        "iPhone|projet|Statut",
     ]
 
     /// `modal` : feuille posée sur un arrière-plan assombri (iPad).
     private func audit(_ screen: String, modal: Bool = false) throws {
         do {
             try runAudit(screen, modal: modal)
-        } catch let error as NSError where error.code == -56 {
-            // « Audit failed to complete in time » : runner de CI chargé, on relance une fois
+        } catch let error as NSError where error.code == -56 || error.localizedDescription.contains("Timed out") {
+            // « Audit failed to complete in time » ou « Timed out while running accessibility audit » :
+            // runner de CI chargé, on relance une fois
             print("AUDIT relancé (délai dépassé) · \(screen)")
             try runAudit(screen, modal: modal)
         }
@@ -84,9 +87,10 @@ final class JalonioUITests: XCTestCase {
                 print("AUDIT (feuille iPad) " + line)
                 return true
             }
-            // Contraste d'un élément que l'audit ne sait pas nommer (hors de l'arbre d'accessibilité :
-            // décor du système) : impossible à situer, signalé dans le journal sans faire échouer
-            if issue.auditType == .contrast, issue.element == nil {
+            // Élément que l'audit ne sait pas nommer (hors de l'arbre d'accessibilité : décor du système,
+            // lignes cachées sous la barre d'onglets) : impossible à situer, signalé dans le journal
+            // sans faire échouer
+            if [.contrast, .dynamicType, .textClipped].contains(issue.auditType), issue.element == nil {
                 print("AUDIT (élément non identifié) " + line)
                 return true
             }
