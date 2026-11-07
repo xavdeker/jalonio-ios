@@ -89,7 +89,9 @@ struct ProjectTicketsView: View {
     @State private var status: Int?
     @State private var search = ""
     @State private var creating = false
-    @State private var showBoard = false
+    /// Projet dont le tableau est ouvert (plein écran, posé hors de la liste : jamais en
+    /// concurrence avec la feuille de création)
+    @State private var boardProject: ProjectDetail?
 
     private struct Snapshot {
         let project: ProjectDetail
@@ -135,7 +137,7 @@ struct ProjectTicketsView: View {
                 if UIDevice.current.userInterfaceIdiom == .pad {
                     ToolbarItem(placement: .primaryAction) {
                         Button {
-                            showBoard = true
+                            boardProject = data.project
                         } label: {
                             Label(L.tr("board_open"), systemImage: "rectangle.split.3x1")
                         }
@@ -153,14 +155,16 @@ struct ProjectTicketsView: View {
                     }
                 }
             }
-            .fullScreenCover(isPresented: $showBoard) {
-                BoardView(project: data.project)
-            }
             .sheet(isPresented: $creating) {
                 CreateTicketView(project: data.project) { created in
                     model.changed()
                     selection = created.key
                 }
+            }
+        }
+        .fullScreenCover(isPresented: Binding(get: { boardProject != nil }, set: { if !$0 { boardProject = nil } })) {
+            if let boardProject {
+                BoardView(project: boardProject)
             }
         }
     }

@@ -154,11 +154,16 @@ final class JalonioUITests: XCTestCase {
     /// Onglet ouvert jusqu'à voir `target` : sur iPad, le simulateur perd parfois l'appui
     /// sur la barre d'onglets flottante (vu sur la vidéo d'une CI), on touche à nouveau.
     private func openTab(_ name: String, until target: XCUIElement) {
+        tapUntil(app.buttons[name].firstMatch, shows: target, "onglet « \(name) »")
+    }
+
+    /// Appui répété (trois fois au plus) jusqu'à voir `target`.
+    private func tapUntil(_ button: XCUIElement, shows target: XCUIElement, _ what: String) {
         for _ in 0..<3 {
-            app.buttons[name].firstMatch.tap()
+            if button.exists { button.tap() }
             if target.waitForExistence(timeout: 5) { return }
         }
-        XCTFail("onglet « \(name) » : contenu introuvable")
+        XCTFail("\(what) : introuvable")
     }
 
     private func element(containing text: String) -> XCUIElement {
@@ -229,15 +234,17 @@ final class JalonioUITests: XCTestCase {
         capture("4-projet")
 
         // Création rapide
-        app.buttons["ticket.create"].tap()
         // Champ sur plusieurs lignes (axis: .vertical) : vue de texte, pas champ de texte
         let title = app.descendants(matching: .any).matching(identifier: "ticket.create.title").firstMatch
-        XCTAssertTrue(title.waitForExistence(timeout: 5))
+        tapUntil(app.buttons["ticket.create"], shows: title, "feuille de création")
         title.tap()
         title.typeText("Vérifier l’accès PMR du guichet")
         try audit("nouveau ticket", modal: true)
         capture("5-nouveau-ticket")
-        app.buttons["ticket.create.submit"].tap()
+        let submit = app.buttons["ticket.create.submit"]
+        submit.tap()
+        // Appui perdu par le simulateur de l'iPad (vu sur la vidéo d'une CI) : on touche à nouveau
+        if !title.waitUntilGone(timeout: 10), submit.exists { submit.tap() }
         XCTAssertTrue(title.waitUntilGone(timeout: 15), "feuille de création refermée")
 
         // Notifications
