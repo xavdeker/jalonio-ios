@@ -22,12 +22,15 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Version de Xcode
-        # Xcode 26 au minimum : App Store Connect refuse les versions compilées avec un SDK plus ancien
+        # Parcours et audit avec le Xcode par défaut du runner : avec Xcode 26.3, l'audit
+        # d'accessibilité n'aboutit pas sur le simulateur d'iPad (délai dépassé à chaque écran).
+        # La version publiable est compilée avec Xcode 26, exigé par App Store Connect.
+        id: xcode
         run: |
+          xcodebuild -version
           xcode=$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)
           test -n "$xcode" || { echo "Xcode 26 absent du runner"; exit 1; }
-          sudo xcode-select -s "$xcode"
-          xcodebuild -version
+          echo "release=$xcode/Contents/Developer" >> "$GITHUB_OUTPUT"
 
       - name: Tests du cœur (JalonioKit)
         working-directory: JalonioKit
@@ -106,9 +109,12 @@ jobs:
                   print("::endgroup::")
           EOF
 
-      - name: Version publiable (Release, sans signature)
+      - name: Version publiable (Release, sans signature, Xcode 26)
         if: success() || failure()
+        env:
+          DEVELOPER_DIR: ${{ steps.xcode.outputs.release }}
         run: |
+          xcodebuild -version
           set -o pipefail
           xcodebuild build -project Jalonio.xcodeproj -scheme Jalonio -configuration Release \
             -destination "generic/platform=iOS" -derivedDataPath build CODE_SIGNING_ALLOWED=NO | xcbeautify
