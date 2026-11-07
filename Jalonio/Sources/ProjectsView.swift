@@ -181,19 +181,23 @@ struct TicketCardRow: View {
                 .font(.body.weight(.medium))
                 .strikethrough(ticket.resolved)
             HStack(spacing: 8) {
-                // Clé jamais coupée (cartes étroites du tableau) : c'est le nom de la personne qui se tronque
+                // Clé jamais coupée (cartes étroites du tableau)
                 Text(ticket.key).font(.caption.monospaced()).fixedSize()
                 if let type {
                     TypeLabel(type: type)
                 }
-                Spacer(minLength: 0)
-                if let assignee = ticket.assignee {
-                    Avatar(initials: assignee.initials, size: 22)
-                    Text(assignee.displayName).lineLimit(1)
-                }
             }
             .font(.caption)
             .foregroundStyle(Brand.muted)
+            // Personne assignée sur sa propre ligne : nom entier, jamais tronqué
+            if let assignee = ticket.assignee {
+                HStack(spacing: 6) {
+                    Avatar(initials: assignee.initials, size: 22)
+                    Text(assignee.displayName)
+                }
+                .font(.caption)
+                .foregroundStyle(Brand.muted)
+            }
             HStack(spacing: 12) {
                 PriorityLabel(priority: ticket.priority)
                 DueLabel(dueDate: ticket.dueDate, resolved: ticket.resolved)

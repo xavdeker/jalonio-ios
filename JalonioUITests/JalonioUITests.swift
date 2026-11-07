@@ -181,8 +181,7 @@ final class JalonioUITests: XCTestCase {
         capture("1-connexion")
 
         // Bouton jamais grisé : un appui sans les champs dit quoi saisir
-        app.buttons["login.submit"].tap()
-        XCTAssertTrue(element(containing: "Saisissez l’adresse de l’espace").waitForExistence(timeout: 5))
+        tapUntil(app.buttons["login.submit"], shows: element(containing: "Saisissez l’adresse de l’espace"), "message des champs manquants")
 
         workspace.tap()
         workspace.typeText("mon espace")
