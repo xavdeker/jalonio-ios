@@ -55,14 +55,17 @@ final class JalonioUITests: XCTestCase {
             try runAudit(screen, modal: modal)
         } catch let error as NSError where error.code == -56 || error.localizedDescription.contains("Timed out") {
             // « Audit failed to complete in time » ou « Timed out while running accessibility audit » :
-            // runner de CI chargé, on relance une fois
-            print("AUDIT relancé (délai dépassé) · \(screen)")
-            try runAudit(screen, modal: modal)
+            // écran chargé (liste longue sur iPad), on relance règle par règle, sans rien retirer
+            print("AUDIT relancé règle par règle (délai dépassé) · \(screen)")
+            let types: [XCUIAccessibilityAuditType] = [.contrast, .elementDetection, .hitRegion, .sufficientElementDescription, .dynamicType, .textClipped, .trait]
+            for type in types {
+                try runAudit(screen, modal: modal, for: type)
+            }
         }
     }
 
-    private func runAudit(_ screen: String, modal: Bool) throws {
-        try app.performAccessibilityAudit { issue in
+    private func runAudit(_ screen: String, modal: Bool, for types: XCUIAccessibilityAuditType = .all) throws {
+        try app.performAccessibilityAudit(for: types) { issue in
             // Textes tronqués par le système dans la barre d'onglets en très grande taille : hors de notre main
             if issue.auditType == .textClipped, issue.element?.elementType == .tabBar { return true }
             // Champ d'une ligne (UITextField) : iOS fait défiler le texte, il ne le renvoie jamais à la ligne
