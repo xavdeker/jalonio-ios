@@ -1,0 +1,13 @@
+Jalonio is a project management app for teams that already have a Jalonio workspace (accounts are created by invitation or on the website, never in the app).
+
+Demo account, on the sign-in screen:
+- Workspace: demonstration
+- Email and password: see the fields above (no two-factor authentication)
+
+Suggested tour (about 2 minutes):
+1. Home: tickets assigned to you.
+2. Projects > "Resident portal redesign": tickets grouped by status; on iPad, tap "Board" for the column view and drag a card to another column.
+3. Open a ticket: change its status, assign it, add a comment.
+4. Alerts: notifications. Account: sign-out, link to the web page for account deletion.
+
+The demo workspace is reserved for review; changes are harmless. The app uses HTTPS only and contains no third-party SDK, advertising or tracking.

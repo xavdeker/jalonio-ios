@@ -1,0 +1,20 @@
+Jalonio pone su espacio de gestión de proyectos en su bolsillo. La aplicación acompaña a los equipos que usan Jalonio: encuentre sus tickets, hágalos avanzar y siga la actividad de sus proyectos, esté donde esté.
+
+En el día a día
+• «Mis tickets»: lo que se le ha asignado, ordenado por vencimiento
+• Los tickets de cada proyecto, agrupados por estado
+• En iPad, el tablero en columnas: arrastre un ticket de un estado a otro
+• Cambiar el estado de un ticket y asignárselo con un toque
+• Leer la descripción, las subtareas y el historial
+• Comentar y crear un ticket en unos segundos
+• Las notificaciones: asignaciones, menciones, comentarios, vencimientos
+
+Soberano y respetuoso
+• Editor francés, datos alojados en la Unión Europea
+• Sin publicidad, sin rastreadores, sin servicios de terceros en la aplicación
+• Inicio de sesión seguro, con autenticación de dos factores
+• Funciona con el espacio alojado (su-organizacion.jalonio.fr) y con una instalación en sus propios servidores
+
+En seis idiomas: francés, inglés, alemán, español, italiano y portugués.
+
+Jalonio es la gestión de proyectos sencilla: tickets, tableros, sprints e hitos, comprensibles sin formación. Se necesita un espacio Jalonio: créelo en jalonio.fr.

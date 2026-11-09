@@ -1,0 +1,1 @@
+kanban,ticket,tablero,sprint,ágil,scrum,tarea,equipo,hito,soberano,incidencia

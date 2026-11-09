@@ -1,0 +1,8 @@
+{
+  "fr-FR": {"support": "https://jalonio.fr/aide/", "marketing": "https://jalonio.fr/"},
+  "en-US": {"support": "https://jalonio.fr/en/help/", "marketing": "https://jalonio.fr/en/"},
+  "de-DE": {"support": "https://jalonio.fr/de/hilfe/", "marketing": "https://jalonio.fr/de/"},
+  "es-ES": {"support": "https://jalonio.fr/es/ayuda/", "marketing": "https://jalonio.fr/es/"},
+  "it": {"support": "https://jalonio.fr/it/aiuto/", "marketing": "https://jalonio.fr/it/"},
+  "pt-PT": {"support": "https://jalonio.fr/pt/ajuda/", "marketing": "https://jalonio.fr/pt/"}
+}

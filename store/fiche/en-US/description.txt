@@ -1,0 +1,20 @@
+Jalonio puts your project management workspace in your pocket. The app supports teams that use Jalonio: find your tickets, move them forward and follow your projects' activity, wherever you are.
+
+Every day
+• "My tickets": what is assigned to you, sorted by due date
+• Each project's tickets, grouped by status
+• On iPad, the board in columns: drag a ticket from one status to another
+• Change a ticket's status, assign it to yourself in one tap
+• Read the description, sub-tasks and history
+• Comment, and create a ticket in a few seconds
+• Notifications: assignments, mentions, comments, due dates
+
+Sovereign and respectful
+• French publisher, data hosted in the European Union
+• No advertising, no trackers, no third-party service in the app
+• Secure sign-in, with two-factor authentication
+• Works with the hosted workspace (your-organisation.jalonio.fr) as well as with an installation on your own servers
+
+In six languages: French, English, German, Spanish, Italian and Portuguese.
+
+Jalonio is simple project management: tickets, boards, sprints and milestones, understood without training. A Jalonio workspace is required: create one at jalonio.fr.

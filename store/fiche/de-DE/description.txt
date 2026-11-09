@@ -1,0 +1,20 @@
+Jalonio bringt Ihren Projektmanagement-Arbeitsbereich auf das Smartphone. Die App begleitet Teams, die Jalonio nutzen: Sie finden Ihre Tickets, bringen sie voran und verfolgen die Aktivität Ihrer Projekte, wo immer Sie sind.
+
+Im Alltag
+• „Meine Tickets“: was Ihnen zugewiesen ist, nach Fälligkeit sortiert
+• Die Tickets jedes Projekts, nach Status geordnet
+• Auf dem iPad das Board in Spalten: Tickets per Drag & Drop von einem Status zum nächsten ziehen
+• Den Status eines Tickets ändern, es sich mit einem Tippen zuweisen
+• Beschreibung, Unteraufgaben und Verlauf lesen
+• Kommentieren und in wenigen Sekunden ein Ticket anlegen
+• Benachrichtigungen: Zuweisungen, Erwähnungen, Kommentare, Fälligkeiten
+
+Souverän und respektvoll
+• Französischer Anbieter, Daten in der Europäischen Union gehostet
+• Keine Werbung, keine Tracker, kein Drittanbieterdienst in der App
+• Sichere Anmeldung mit Zwei-Faktor-Authentifizierung
+• Funktioniert mit dem gehosteten Arbeitsbereich (ihre-organisation.jalonio.fr) ebenso wie mit einer Installation auf eigenen Servern
+
+In sechs Sprachen: Französisch, Englisch, Deutsch, Spanisch, Italienisch und Portugiesisch.
+
+Jalonio ist einfaches Projektmanagement: Tickets, Boards, Sprints und Meilensteine, ohne Schulung verständlich. Ein Jalonio-Arbeitsbereich ist erforderlich: Erstellen Sie ihn auf jalonio.fr.

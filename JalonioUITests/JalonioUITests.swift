@@ -303,14 +303,6 @@ extension JalonioUITests {
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.buttons["board.close"].waitForExistence(timeout: 5))
 
-        if storeCaptures {
-            // Le tableau en paysage : plus de colonnes visibles
-            XCUIDevice.shared.orientation = .landscapeLeft
-            XCTAssertTrue(card.waitForExistence(timeout: 10))
-            sleep(2)
-            capture("4c-tableau-paysage")
-            return
-        }
         try audit("tableau")
     }
 }

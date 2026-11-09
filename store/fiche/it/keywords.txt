@@ -1,0 +1,1 @@
+kanban,ticket,bacheca,sprint,agile,scrum,attività,team,traguardo,sovrano

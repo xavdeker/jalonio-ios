@@ -1,0 +1,1 @@
+kanban,ticket,board,sprint,agil,scrum,aufgabe,team,meilenstein,souverän

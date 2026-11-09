@@ -1,9 +1,9 @@
 # Publication sur l'App Store
 
-État au 2026-11-06 : compte Apple Developer créé (équipe `2F44NZ85VT`), identifiant
-`fr.jalonio.app`, fiche App Store Connect (SKU `jalonio-ios`) et clé d'API créés. Reste :
-premier envoi vers TestFlight, essai sur un appareil réel, fiche, compte de démonstration
-(point I5 de `docs/points-a-trancher.md` du dépôt `jalonio`).
+État au 2026-11-09 : version 1.0.0 (build 6.1) sur TestFlight, essayée sur iPad ; fiche
+envoyée par l'API (textes en six langues, catégories, build rattaché). Reste : captures,
+classement par âge, contact et compte de démonstration pour la vérification, confidentialité
+et prix dans App Store Connect, puis envoi à la vérification.
 
 ## 1. Compte et identifiant
 
@@ -34,13 +34,26 @@ dans App Store Connect, après essai sur TestFlight.
 
 ## 3. Fiche
 
+`store/publish-listing.py` envoie la fiche par l'API App Store Connect (même clé) :
+
+```bash
+python3 store/publish-listing.py                       # textes, catégories, version, build
+JALONIO_DEMO_PASSWORD=… JALONIO_REVIEW_CONTACT="Prénom|Nom|+33 …" \
+    python3 store/publish-listing.py --captures         # + vérification et captures
+```
+
 | Élément | Source |
 |---|---|
-| Nom, sous-titre, description, mots-clés | Fiche Play Store (`jalonio-android/docs/play-store.md`), six langues |
-| Captures iPhone 6,9 pouces (1320 × 2868) et iPad 13 pouces (2064 × 2752) | Parcours des tests d'interface (artefact `parcours-xcresult`), à refaire sur ces simulateurs |
+| Nom, sous-titre, mots-clés, description, texte promotionnel | `store/fiche/<langue>/` (repris de la fiche Play Store, sans nom de produit concurrent : règle 2.3.7) |
+| Adresses d'assistance et du site, par langue | `store/fiche/urls.json` |
+| Catégories | Économie et entreprise, puis Productivité |
+| Captures iPhone 6,9 pouces (1320 × 2868) et iPad 13 pouces (2064 × 2752) | Workflow « Captures » (`gh workflow run captures.yml`), copiées dans `store/captures/` ; en français, reprises par les autres langues |
 | Icône 1024 px | `Jalonio/Resources/Assets.xcassets/AppIcon.appiconset` (`store/generate.mjs`) |
 | Politique de confidentialité | https://app.jalonio.fr/confidentialite/ |
-| Assistance | https://jalonio.fr/aide/ |
+| Compte de démonstration | Espace `demonstration` (données en anglais, sans double authentification), `demo@jalonio.fr`, le même que pour l'examen du Play Store ; notes dans `store/fiche/review-notes.txt` |
+
+Le mot de passe du compte de démonstration et le contact pour Apple ne sont jamais écrits
+dans le dépôt (public).
 
 ## 4. Confidentialité (« étiquettes nutritionnelles »)
 

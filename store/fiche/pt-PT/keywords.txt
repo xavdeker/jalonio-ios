@@ -1,0 +1,1 @@
+kanban,ticket,quadro,sprint,ágil,scrum,tarefa,equipa,marco,soberano
