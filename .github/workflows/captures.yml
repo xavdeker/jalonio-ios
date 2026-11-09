@@ -1,0 +1,77 @@
+# SPDX-License-Identifier: EUPL-1.2
+# Captures pour la fiche App Store : parcours des tests d'interface (faux serveur, en français)
+# sur les simulateurs aux tailles exigées par Apple, iPhone 6,9 pouces (1320 × 2868) et
+# iPad 13 pouces (2064 × 2752), barre d'état figée. Lancement à la main seulement.
+name: Captures
+
+on:
+  workflow_dispatch:
+
+jobs:
+  captures:
+    name: Captures App Store
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Projet Xcode (XcodeGen)
+        run: |
+          xcodebuild -version
+          brew install xcodegen xcbeautify
+          xcodegen generate
+
+      - name: Simulateurs
+        id: sims
+        run: |
+          xcrun simctl list devices available -j > devices.json
+          python3 - <<'EOF' >> "$GITHUB_OUTPUT"
+          import json
+          runtimes = json.load(open("devices.json"))["devices"]
+          ios = sorted((k for k in runtimes if "iOS" in k), key=lambda k: [int(x) for x in k.split("iOS-")[-1].split("-")])
+          devices = runtimes[ios[-1]]
+          phone = next(d for d in devices if d["name"].startswith("iPhone") and d["name"].endswith("Pro Max"))
+          pad = next(d for d in devices if d["name"].startswith("iPad Pro 13"))
+          print(f"iphone={phone['udid']}")
+          print(f"ipad={pad['udid']}")
+          print(f"names={phone['name']} / {pad['name']}")
+          EOF
+
+      - name: Barre d'état figée
+        run: |
+          for udid in ${{ steps.sims.outputs.iphone }} ${{ steps.sims.outputs.ipad }}; do
+            xcrun simctl boot "$udid"
+            xcrun simctl bootstatus "$udid"
+            xcrun simctl status_bar "$udid" override --time "9:41" --dataNetwork wifi --wifiMode active \
+              --wifiBars 3 --cellularMode notSupported --batteryState charged --batteryLevel 100
+          done
+
+      - name: Parcours (${{ steps.sims.outputs.names }})
+        env:
+          TEST_RUNNER_JALONIO_STORE_CAPTURES: "1"
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project Jalonio.xcodeproj -scheme Jalonio \
+            -destination "id=${{ steps.sims.outputs.iphone }}" \
+            -destination "id=${{ steps.sims.outputs.ipad }}" \
+            -only-testing:JalonioUITests/JalonioUITests/testTourOfTheApp \
+            -only-testing:JalonioUITests/JalonioUITests/testZBoardOnIPad \
+            -resultBundlePath Captures.xcresult \
+            -disable-concurrent-destination-testing \
+            CODE_SIGNING_ALLOWED=NO | xcbeautify
+
+      - name: Extraction des captures
+        if: success() || failure()
+        run: |
+          mkdir -p captures
+          xcrun xcresulttool export attachments --path Captures.xcresult --output-path captures
+          ls -la captures
+
+      - name: Captures
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: captures-app-store
+          path: captures
+          retention-days: 14

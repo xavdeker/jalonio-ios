@@ -20,6 +20,10 @@ final class JalonioUITests: XCTestCase {
 
     private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
 
+    /// Captures pour l'App Store (workflow « Captures ») : même parcours, sans l'audit
+    /// d'accessibilité (déjà fait par la CI), sur les simulateurs aux tailles exigées par Apple.
+    private var storeCaptures: Bool { ProcessInfo.processInfo.environment["JALONIO_STORE_CAPTURES"] == "1" }
+
     private func capture(_ name: String) {
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "\(isPad ? "ipad" : "iphone")-\(name)"
@@ -60,6 +64,7 @@ final class JalonioUITests: XCTestCase {
 
     /// `modal` : feuille posée sur un arrière-plan assombri (iPad).
     private func audit(_ screen: String, modal: Bool = false) throws {
+        if storeCaptures { return }
         do {
             try runAudit(screen, modal: modal)
         } catch where Self.isTimeout(error) {
@@ -298,6 +303,14 @@ extension JalonioUITests {
         app.navigationBars.buttons.element(boundBy: 0).tap()
         XCTAssertTrue(app.buttons["board.close"].waitForExistence(timeout: 5))
 
+        if storeCaptures {
+            // Le tableau en paysage : plus de colonnes visibles
+            XCUIDevice.shared.orientation = .landscapeLeft
+            XCTAssertTrue(card.waitForExistence(timeout: 10))
+            sleep(2)
+            capture("4c-tableau-paysage")
+            return
+        }
         try audit("tableau")
     }
 }
