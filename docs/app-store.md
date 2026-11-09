@@ -1,8 +1,8 @@
 # Publication sur l'App Store
 
 État au 2026-11-09 : version 1.0.0 (build 6.1) sur TestFlight, essayée sur iPad ; fiche
-envoyée par l'API (textes en six langues, catégories, build rattaché). Reste : captures,
-classement par âge, contact et compte de démonstration pour la vérification, confidentialité
+envoyée par l'API (textes en six langues, catégories, build rattaché), captures,
+classement par âge (4+), contact et compte de démonstration envoyés. Reste : confidentialité
 et prix dans App Store Connect, puis envoi à la vérification.
 
 ## 1. Compte et identifiant
